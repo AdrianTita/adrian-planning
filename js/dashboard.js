@@ -81,6 +81,14 @@ const formatDateBR = (iso) => {
   return `${d}/${m}/${y}`;
 };
 
+const escapeHtml = (v) =>
+  String(v || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
 const weekNumberOnly = (semanaId) => {
   const m = String(semanaId || "").match(/S(\d+)/);
   return m ? m[1] : semanaId;
@@ -850,12 +858,50 @@ async function carregarTodosEventosCronologico() {
     const semanaIds = Array.from(byWeek.keys());
 
     const weekInviteStatus = new Map();
+    const weekInviteAdminSummary = new Map();
     if (!isAdmin && currentUserUid) {
       await Promise.all(semanaIds.map(async (sid) => {
         try {
           const snap = await getDoc(doc(db, `eventos/${sid}/convitesSemana/${currentUserUid}`));
           if (snap.exists()) weekInviteStatus.set(sid, snap.data().status || "pendente");
         } catch (e) {}
+      }));
+    } else if (isAdmin) {
+      let usersById = new Map();
+      try {
+        const usersSnap = await getDocs(collection(db, "users"));
+        usersSnap.forEach((d) => usersById.set(d.id, d.data() || {}));
+      } catch (e) {
+        usersById = new Map();
+      }
+      await Promise.all(semanaIds.map(async (sid) => {
+        try {
+          const cSnap = await getDocs(collection(db, `eventos/${sid}/convitesSemana`));
+          const summary = {
+            total: 0,
+            aceite: 0,
+            pendente: 0,
+            recusado: 0,
+            items: []
+          };
+          cSnap.forEach((d) => {
+            const raw = (d.data()?.status || "pendente").toString().toLowerCase();
+            const status = raw === "aceite" || raw === "recusado" || raw === "pendente" ? raw : "pendente";
+            summary.total += 1;
+            summary[status] += 1;
+            const u = usersById.get(d.id) || {};
+            const displayName =
+              [u.firstName, u.lastName].filter(Boolean).join(" ").trim() ||
+              u.nome ||
+              u.email ||
+              d.id;
+            summary.items.push({ uid: d.id, status, name: displayName });
+          });
+          summary.items.sort((a, b) => a.name.localeCompare(b.name));
+          weekInviteAdminSummary.set(sid, summary);
+        } catch (e) {
+          weekInviteAdminSummary.set(sid, { total: 0, aceite: 0, pendente: 0, recusado: 0, items: [] });
+        }
       }));
     }
     weekInviteCache = weekInviteStatus;
@@ -873,6 +919,31 @@ async function carregarTodosEventosCronologico() {
 
       const status = weekInviteStatus.get(semanaId) || "";
       const statusLabel = status ? (t(localStorage.getItem("appLang") || "en", `status.${status}`) || status) : "";
+      const adminWeekSummary = weekInviteAdminSummary.get(semanaId);
+      const byStatusBadges = (st) => {
+        if (!adminWeekSummary || !Array.isArray(adminWeekSummary.items)) return "";
+        const names = adminWeekSummary.items.filter((x) => x.status === st).map((x) => x.name);
+        if (!names.length) return "";
+        const shown = names.slice(0, 10).map((name) => `<span class="badge atr-status-${st}">${escapeHtml(name)}</span>`).join(" ");
+        const hiddenCount = names.length - Math.min(names.length, 10);
+        const more = hiddenCount > 0 ? ` <span class="muted">+${hiddenCount}</span>` : "";
+        return `${shown}${more}`;
+      };
+      const adminSummaryHtml = isAdmin ? `
+        <div class="muted" style="width:100%;">
+          ${tr("week.invite", "Convite semana")}: ${adminWeekSummary?.total || 0}
+          · ${tr("status.aceite", "aceite")}: ${adminWeekSummary?.aceite || 0}
+          · ${tr("status.pendente", "pendente")}: ${adminWeekSummary?.pendente || 0}
+          · ${tr("status.rejeitado", "rejeitado")}: ${adminWeekSummary?.recusado || 0}
+        </div>
+        ${adminWeekSummary?.total ? `
+          <div style="width:100%; margin-top:4px;">
+            ${adminWeekSummary.aceite ? `<div class="muted" style="margin-top:2px;">${tr("status.aceite", "aceite")}: ${byStatusBadges("aceite")}</div>` : ""}
+            ${adminWeekSummary.pendente ? `<div class="muted" style="margin-top:2px;">${tr("status.pendente", "pendente")}: ${byStatusBadges("pendente")}</div>` : ""}
+            ${adminWeekSummary.recusado ? `<div class="muted" style="margin-top:2px;">${tr("status.rejeitado", "rejeitado")}: ${byStatusBadges("recusado")}</div>` : ""}
+          </div>
+        ` : ""}
+      ` : "";
 
       weekBlock.innerHTML = `
         <div class="week-header" style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
@@ -888,6 +959,7 @@ async function carregarTodosEventosCronologico() {
               <button class="btn" data-week-accept data-semana="${semanaId}">${t(localStorage.getItem("appLang") || "en", "week.accept") || "Aceitar semana"}</button>
               <button class="btn" data-week-reject data-semana="${semanaId}">${t(localStorage.getItem("appLang") || "en", "week.reject") || "Recusar semana"}</button>
             ` : ""}
+            ${adminSummaryHtml}
           </div>
         </div>
         <div class="week-events" id="week-${semanaId}"></div>
