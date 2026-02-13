@@ -246,7 +246,7 @@
   <script type="module">
     import { app, db } from './js/firebase-config.js';
     import {
-      collection, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc
+      collection, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc, query, where
     } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
     import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-functions.js';
@@ -331,8 +331,19 @@
         b.onclick = async ()=>{
           const uid = b.getAttribute('data-del');
           if (!confirm(t(currentLang, "adminUsers.confirmDelete") || 'Apagar utilizador? (Apenas o doc em /users, não a conta auth)')) return;
-          await deleteDoc(doc(db,'users',uid));
+          const s = await getDoc(doc(db,'users',uid));
+          const email = (s.exists() ? (s.data()?.email || '') : '').trim().toLowerCase();
+
+          // Remove o doc selecionado e possíveis duplicados por email.
+          const idsToDelete = new Set([uid]);
+          if (email) {
+            const dupSnap = await getDocs(query(collection(db, 'users'), where('email', '==', email)));
+            dupSnap.forEach((d) => idsToDelete.add(d.id));
+          }
+          await Promise.all([...idsToDelete].map((id) => deleteDoc(doc(db, 'users', id))));
+
           if (selectedUid === uid) { selectedUid = null; limparForm(); }
+          status.textContent = `${t(currentLang, "adminUsers.deletedOk") || "Utilizador removido da base de dados (Firestore)."} (${idsToDelete.size})`;
           await carregarUsers();
         };
       });
