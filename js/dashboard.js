@@ -1,6 +1,6 @@
 // js/dashboard.js
 // — Mantém o teu visual/IDs e acrescenta:
-//   • Funções vindas de config/servicos/lista
+//   • Funções vindas de config/funcoes/lista
 //   • Atribuições com transporte: carro (seleção de carro) OU outros (custo, partida, chegada)
 //   • ViagensCarro por evento com ODOMETRO (odInicio/odFim) e TotalKms = odFim - odInicio
 //   • Totais incluem despesas + custo carros + custos de transportes não-carro
@@ -207,6 +207,8 @@ function bindModalCriarEvento(isAdmin) {
     const editarBtn = trg.matches("button[data-editar-evento]") ? trg : null;
     editing.active = !!editarBtn; editing.semanaId = null; editing.eventoId = null;
 
+    // Recarrega configuração no momento de abrir para evitar lista de funções em cache.
+    await carregarConfigProdutos();
     funcoesSelecionadas = [];
     if (ulFuncoes) ulFuncoes.innerHTML = "";
     if (selectFuncao) populateFuncoesSelect(selectFuncao, funcoesSelecionadas);
@@ -312,11 +314,6 @@ function populateFuncoesSelect(selectEl, selected = []) {
 
   if (Array.isArray(produtosConfig.funcoes) && produtosConfig.funcoes.length) {
     produtosConfig.funcoes.forEach(s => {
-      const nomeFunc = s?.nome || s?.id;
-      if (nomeFunc) opts.push(nomeFunc);
-    });
-  } else if (Array.isArray(produtosConfig.servicos)) {
-    produtosConfig.servicos.forEach(s => {
       const nomeFunc = s?.nome || s?.id;
       if (nomeFunc) opts.push(nomeFunc);
     });
