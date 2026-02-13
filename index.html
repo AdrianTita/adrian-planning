@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title data-i18n="login.title">Login - Adrian Events</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/ui-refresh.css">
+</head>
+<body>
+  <div class="login-shell">
+    <h2 data-i18n="login.heading">Login</h2>
+    <div class="login-lang-wrap">
+      <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+      <select id="langSelect" class="login-lang-select">
+        <option value="en" data-i18n="lang.en">English</option>
+        <option value="pt" data-i18n="lang.pt">Português</option>
+        <option value="de" data-i18n="lang.de">Deutsch</option>
+        <option value="ro" data-i18n="lang.ro">Română</option>
+        <option value="fr" data-i18n="lang.fr">Français</option>
+        <option value="es" data-i18n="lang.es">Español</option>
+      </select>
+    </div>
+    <form id="loginForm">
+      <input type="email" id="email" data-i18n-placeholder="login.email" placeholder="Email" required />
+      <input type="password" id="password" data-i18n-placeholder="login.password" placeholder="Senha" required />
+      <button type="submit" data-i18n="login.submit">Entrar</button>
+    </form>
+  </div>
+  <script type="module">
+    import { applyTranslations } from "./js/i18n.js";
+
+    const select = document.getElementById("langSelect");
+    const stored = localStorage.getItem("appLang") || "en";
+    select.value = stored;
+    applyTranslations(stored);
+
+    select.addEventListener("change", () => {
+      const v = select.value;
+      localStorage.setItem("appLang", v);
+      applyTranslations(v);
+    });
+  </script>
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>

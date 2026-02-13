@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title data-i18n="config.title">⚙️ Configuração</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { margin:0; font-family:sans-serif; background:#ecf0f1; }
+    .wrap { max-width: 1200px; margin: 24px auto; padding: 16px; }
+    h1 { margin: 0 0 12px; }
+    h2 { margin: 18px 0 10px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:6px; padding:16px; margin-bottom:16px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:12px; }
+    .grid .full { grid-column: span 4; }
+    label { display:block; font-weight:600; margin-bottom:4px; }
+    input, select { width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:6px; }
+    .btn { padding: 8px 12px; border:1px solid #ccc; background:#f9f9f9; cursor:pointer; border-radius:6px; }
+    .btn-primary { background:#2c3e50; color:#fff; border:none; }
+    table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #ddd; }
+    th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
+    th { background:#f5f5f5; }
+    .actions button { margin-right:6px; }
+    .muted { color:#666; font-size:13px; }
+    .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .pill { display:inline-block; padding:3px 8px; background:#f0f0f0; border:1px solid #ddd; border-radius:12px; font-size:12px; }
+    /* Azul-claro para botões auxiliares (consistente com dashboard) */
+    .btn-aux { background:#e3f2fd; border:1px solid #90caf9; }
+    .btn-aux:hover { background:#bbdefb; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>⚙️ <span data-i18n="config.title">Configuração</span></h1>
+    <div style="margin: 8px 0 16px;">
+      <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+      <select id="langSelect" style="width:100%; max-width:260px; margin-top:6px;">
+        <option value="en" data-i18n="lang.en">English</option>
+        <option value="pt" data-i18n="lang.pt">Português</option>
+        <option value="de" data-i18n="lang.de">Deutsch</option>
+        <option value="ro" data-i18n="lang.ro">Română</option>
+        <option value="fr" data-i18n="lang.fr">Français</option>
+        <option value="es" data-i18n="lang.es">Español</option>
+      </select>
+    </div>
+
+    <!-- FUNÇÕES -->
+    <div class="card">
+      <h2 data-i18n="config.functions">Funções</h2>
+      <div class="muted" style="margin-bottom:8px;">
+        <span data-i18n="config.functionsTip">Define aqui as funções disponíveis para selecionar na criação de eventos.</span>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label data-i18n="config.name">Nome</label>
+          <input id="fNome" data-i18n-placeholder="config.functionNamePlaceholder" placeholder="Ex.: Timekeeper, Livestream">
+        </div>
+        <div class="full">
+          <button id="fNovo" class="btn" data-i18n="common.new">Novo</button>
+          <button id="fGuardar" class="btn-primary" data-i18n="common.save">Guardar</button>
+          <span id="fStatus" class="muted" style="margin-left:8px;"></span>
+        </div>
+      </div>
+
+      <table style="margin-top:12px;">
+        <thead>
+          <tr>
+            <th data-i18n="config.table.id">ID</th>
+            <th data-i18n="config.name">Nome</th>
+            <th style="width:170px;" data-i18n="common.actions">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbFuncoes"></tbody>
+      </table>
+    </div>
+
+    <!-- ATIVOS (CARROS) -->
+    <div class="card">
+      <h2 data-i18n="config.assets">Ativos (Carros)</h2>
+      <div class="muted" style="margin-bottom:8px;">
+        <span data-i18n="config.assetsTip">Estes carros podem ser escolhidos na atribuição (transporte = carro). Os kms são registados 1x por evento no modal Detalhes.</span>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label data-i18n="config.name">Nome</label>
+          <input id="aNome" data-i18n-placeholder="config.assetNamePlaceholder" placeholder="Ex.: Carro A, Furgão">
+        </div>
+        <div>
+          <label data-i18n="config.plate">Matrícula</label>
+          <input id="aMatricula" data-i18n-placeholder="config.platePlaceholder" placeholder="AA-00-AA">
+        </div>
+        <div>
+          <label data-i18n="config.priceKm">Preço por km (€)</label>
+          <input id="aPrecoKm" type="number" step="0.01" min="0" data-i18n-placeholder="config.priceKmPlaceholder" placeholder="Ex.: 0.25">
+        </div>
+        <div class="full">
+          <button id="aNovo" class="btn" data-i18n="common.new">Novo</button>
+          <button id="aGuardar" class="btn-primary" data-i18n="common.save">Guardar</button>
+          <span id="aStatus" class="muted" style="margin-left:8px;"></span>
+        </div>
+      </div>
+
+      <table style="margin-top:12px;">
+        <thead>
+          <tr>
+            <th data-i18n="config.table.id">ID</th>
+            <th data-i18n="config.name">Nome</th>
+            <th data-i18n="config.plate">Matrícula</th>
+            <th data-i18n="config.priceKm">€/km</th>
+            <th style="width:170px;" data-i18n="common.actions">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbAtivos"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from './js/firebase-config.js';
+    import {
+      collection, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc
+    } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+    import { initUserLanguage, bindLanguageSelector, t } from './js/i18n.js';
+
+    const auth = getAuth();
+    let currentLang = localStorage.getItem("appLang") || "en";
+
+    // ======= util =======
+    const toMoney = (n)=> (Number(n||0)).toFixed(2);
+    const genIdFromName = (name)=> (name||'item').toLowerCase().trim().replace(/[^\w.-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,48) || 'item';
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentLang = await initUserLanguage(user.uid);
+      const langSelect = document.getElementById("langSelect");
+      bindLanguageSelector(langSelect, user.uid, currentLang);
+      if (langSelect) {
+        langSelect.addEventListener("change", async () => {
+          currentLang = localStorage.getItem("appLang") || langSelect.value;
+          await Promise.all([loadFuncoes(), loadAtivos()]);
+        });
+      }
+    // opcional: poderias validar se é admin antes de deixar editar
+    await Promise.all([loadFuncoes(), loadAtivos()]);
+    });
+
+    /* ---------------- FUNÇÕES ---------------- */
+    const fNome = document.getElementById('fNome');
+    const fStatus = document.getElementById('fStatus');
+    const tbFuncoes = document.getElementById('tbFuncoes');
+    let fEditingId = null;
+
+    document.getElementById('fNovo').onclick = ()=>{
+      fEditingId = null;
+      fNome.value = '';
+      fStatus.textContent = '';
+    };
+    document.getElementById('fGuardar').onclick = async ()=>{
+      const nome = fNome.value.trim();
+      if (!nome) { alert(t(currentLang, "config.alertNameRequired") || 'Indica o nome.'); return; }
+      const id = fEditingId || genIdFromName(nome);
+      await setDoc(doc(db, 'config/funcoes/lista', id), { nome }, { merge:true });
+      fStatus.textContent = `${t(currentLang, "common.saved") || "Guardado"} ${id}`;
+      await loadFuncoes();
+    };
+
+    async function loadFuncoes(){
+      tbFuncoes.innerHTML = `<tr><td colspan="3">${t(currentLang, "common.loading") || "A carregar..."}</td></tr>`;
+      const snap = await getDocs(collection(db, 'config/funcoes/lista'));
+      const rows = [];
+      snap.forEach(d => rows.push({ id: d.id, ...d.data() }));
+      rows.sort((a,b)=> String(a.nome||a.id).localeCompare(String(b.nome||b.id)));
+
+      tbFuncoes.innerHTML = '';
+      for (const it of rows) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="muted">${it.id}</td>
+          <td>${it.nome || '-'}</td>
+          <td class="actions">
+            <button class="btn btn-aux" data-f-edit="${it.id}">${t(currentLang, "common.edit") || "Editar"}</button>
+            <button class="btn btn-aux" data-f-del="${it.id}">${t(currentLang, "common.delete") || "Apagar"}</button>
+          </td>
+        `;
+        tbFuncoes.appendChild(tr);
+      }
+
+      tbFuncoes.querySelectorAll('[data-f-edit]').forEach(b=>{
+        b.onclick = async ()=>{
+          const id = b.getAttribute('data-f-edit');
+          const s = await getDoc(doc(db,'config/funcoes/lista',id));
+          if (!s.exists()) return;
+          const it = s.data();
+          fEditingId = id;
+          fNome.value = it.nome || '';
+          fStatus.textContent = `${t(currentLang, "common.edit") || "Editar"} ${id}`;
+        };
+      });
+      tbFuncoes.querySelectorAll('[data-f-del]').forEach(b=>{
+        b.onclick = async ()=>{
+          const id = b.getAttribute('data-f-del');
+          if (!confirm(t(currentLang, "config.confirmDeleteFunction") || 'Apagar função?')) return;
+          await deleteDoc(doc(db,'config/funcoes/lista',id));
+          await loadFuncoes();
+        };
+      });
+    }
+
+    /* ---------------- ATIVOS (CARROS) ---------------- */
+    const aNome = document.getElementById('aNome');
+    const aMatricula = document.getElementById('aMatricula');
+    const aPrecoKm = document.getElementById('aPrecoKm');
+    const aStatus = document.getElementById('aStatus');
+    const tbAtivos = document.getElementById('tbAtivos');
+    let aEditingId = null;
+
+    document.getElementById('aNovo').onclick = ()=>{
+      aEditingId = null;
+      aNome.value=''; aMatricula.value=''; aPrecoKm.value='';
+      aStatus.textContent='';
+    };
+    document.getElementById('aGuardar').onclick = async ()=>{
+      const nome = aNome.value.trim();
+      const mat = aMatricula.value.trim();
+      const preco = parseFloat(aPrecoKm.value||'0')||0;
+      if (!nome && !mat) { alert(t(currentLang, "config.alertNameOrPlateRequired") || 'Indica pelo menos Nome ou Matrícula.'); return; }
+      const base = nome || mat || 'carro';
+      const id = aEditingId || genIdFromName(base);
+      await setDoc(doc(db, 'config/ativos/lista', id), {
+        nome: nome||null, matricula: mat||null, precoKm: preco
+      }, { merge:true });
+      aStatus.textContent = `${t(currentLang, "common.saved") || "Guardado"} ${id}`;
+      await loadAtivos();
+    };
+
+    async function loadAtivos(){
+      tbAtivos.innerHTML = `<tr><td colspan="5">${t(currentLang, "common.loading") || "A carregar..."}</td></tr>`;
+      const snap = await getDocs(collection(db, 'config/ativos/lista'));
+      const arr = [];
+      snap.forEach(d=> arr.push({ id:d.id, ...(d.data()||{}) }));
+      arr.sort((a,b)=> String(a.nome||a.matricula||a.id).localeCompare(String(b.nome||b.matricula||b.id)));
+      tbAtivos.innerHTML = '';
+      for (const it of arr) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="muted">${it.id}</td>
+          <td>${it.nome||'-'}</td>
+          <td>${it.matricula||'-'}</td>
+          <td>€ ${toMoney(it.precoKm)}</td>
+          <td class="actions">
+            <button class="btn btn-aux" data-a-edit="${it.id}">${t(currentLang, "common.edit") || "Editar"}</button>
+            <button class="btn btn-aux" data-a-del="${it.id}">${t(currentLang, "common.delete") || "Apagar"}</button>
+          </td>
+        `;
+        tbAtivos.appendChild(tr);
+      }
+      tbAtivos.querySelectorAll('[data-a-edit]').forEach(b=>{
+        b.onclick = async ()=>{
+          const id = b.getAttribute('data-a-edit');
+          const s = await getDoc(doc(db,'config/ativos/lista',id));
+          if (!s.exists()) return;
+          const it = s.data();
+          aEditingId = id;
+          aNome.value = it.nome||'';
+          aMatricula.value = it.matricula||'';
+          aPrecoKm.value = it.precoKm ?? '';
+          aStatus.textContent = `A editar: ${id}`;
+        };
+      });
+      tbAtivos.querySelectorAll('[data-a-del]').forEach(b=>{
+        b.onclick = async ()=>{
+          const id = b.getAttribute('data-a-del');
+          if (!confirm(t(currentLang, "config.confirmDeleteAsset") || 'Apagar ativo?')) return;
+          await deleteDoc(doc(db,'config/ativos/lista',id));
+          if (aEditingId===id) { aEditingId=null; aNome.value=''; aMatricula.value=''; aPrecoKm.value=''; }
+          await loadAtivos();
+        };
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="event.title">Gestão de Evento</title>
+  <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ui-refresh.css">
+</head>
+<body>
+  <div>
+    <h3 data-i18n="event.details">Detalhes do Evento</h3>
+    <div style="margin: 8px 0 16px;">
+      <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+      <select id="langSelect" style="width:100%; max-width:260px; margin-top:6px;">
+        <option value="en" data-i18n="lang.en">English</option>
+        <option value="pt" data-i18n="lang.pt">Português</option>
+        <option value="de" data-i18n="lang.de">Deutsch</option>
+        <option value="ro" data-i18n="lang.ro">Română</option>
+        <option value="fr" data-i18n="lang.fr">Français</option>
+        <option value="es" data-i18n="lang.es">Español</option>
+      </select>
+    </div>
+    <p><strong data-i18n="event.name">Nome:</strong> <span id="eventoNome"></span></p>
+    <p><strong data-i18n="event.date">Data:</strong> <span id="eventoData"></span></p>
+    <p><strong data-i18n="event.location">Local:</strong> <span id="eventoLocal"></span></p>
+  
+    <h4 data-i18n="event.rolesNeeded">Funções necessárias:</h4>
+    <ul id="funcoesLista"></ul>
+  </div>
+
+  <hr>
+
+  <h2 data-i18n="event.assignTitle">👥 Atribuir Pessoa a Função</h2>
+  <label for="userSelect" data-i18n="event.user">Utilizador:</label>
+  <select id="userSelect"></select>
+
+  <label for="funcaoSelect" data-i18n="event.role">Função:</label>
+  <select id="funcaoSelect">
+    <option data-i18n="event.roleTime">Time</option>
+    <option data-i18n="event.roleLiveStream">LiveStream</option>
+    <option data-i18n="event.roleTeamLeader">TeamLeader</option>
+  </select>
+
+  <button id="atribuirBtn" data-i18n="event.assign">✅ Atribuir</button>
+
+  <hr>
+  <h3 data-i18n="event.travelDetails">🧭 Detalhes da Viagem</h3>
+
+<h4 data-i18n="event.outbound">📤 Ida</h4>
+<label data-i18n="event.travelDate">Data:</label>
+<input type="date" id="idaData" />
+
+<label data-i18n="event.travelTime">Hora:</label>
+<input type="time" id="idaHora" />
+
+<label data-i18n="event.departure">Local de Partida:</label>
+<input type="text" id="idaPartida" data-i18n-placeholder="event.departurePlaceholder" placeholder="Partida" />
+
+<label data-i18n="event.arrival">Local de Chegada:</label>
+<input type="text" id="idaChegada" data-i18n-placeholder="event.arrivalPlaceholder" placeholder="Chegada" />
+
+<label data-i18n="event.transport">Meio de Transporte:</label>
+<select id="idaTransporte">
+  <option data-i18n="transport.car">carro</option>
+  <option data-i18n="transport.plane">avião</option>
+  <option data-i18n="transport.bus">autocarro</option>
+  <option data-i18n="transport.train">comboio</option>
+  <option data-i18n="transport.other">outro</option>
+</select>
+
+<br><br>
+
+<h4 data-i18n="event.return">📥 Volta</h4>
+<label data-i18n="event.travelDate">Data:</label>
+<input type="date" id="voltaData" />
+
+<label data-i18n="event.travelTime">Hora:</label>
+<input type="time" id="voltaHora" />
+
+<label data-i18n="event.departure">Local de Partida:</label>
+<input type="text" id="voltaPartida" data-i18n-placeholder="event.departurePlaceholder" placeholder="Partida" />
+
+<label data-i18n="event.arrival">Local de Chegada:</label>
+<input type="text" id="voltaChegada" data-i18n-placeholder="event.arrivalPlaceholder" placeholder="Chegada" />
+
+<label data-i18n="event.transport">Meio de Transporte:</label>
+<select id="voltaTransporte">
+  <option data-i18n="transport.car">carro</option>
+  <option data-i18n="transport.plane">avião</option>
+  <option data-i18n="transport.bus">autocarro</option>
+  <option data-i18n="transport.train">comboio</option>
+  <option data-i18n="transport.other">outro</option>
+</select>
+
+  <h2 data-i18n="event.assignments">📋 Atribuições Existentes</h2>
+  <div id="atribuicoesLista"></div>
+
+
+  <hr>
+<button onclick="window.location.href='dashboard.html'" data-i18n="common.backDashboard">⬅️ Voltar ao Dashboard</button>
+<div id="viagemModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%);
+background:white; padding:20px; border:1px solid #aaa; z-index:999;">
+  <h3 data-i18n="event.editTravel">✏️ Editar Viagem</h3>
+
+  <input type="hidden" id="modalUserId" />
+
+  <h4 data-i18n="event.outbound">Ida</h4>
+  <input type="date" id="editIdaData" />
+  <input type="time" id="editIdaHora" />
+  <input type="text" id="editIdaPartida" data-i18n-placeholder="event.departurePlaceholder" placeholder="Partida" />
+  <input type="text" id="editIdaChegada" data-i18n-placeholder="event.arrivalPlaceholder" placeholder="Chegada" />
+  <select id="editIdaTransporte">
+    <option data-i18n="transport.car">carro</option>
+    <option data-i18n="transport.plane">avião</option>
+    <option data-i18n="transport.bus">autocarro</option>
+    <option data-i18n="transport.train">comboio</option>
+    <option data-i18n="transport.other">outro</option>
+  </select>
+
+  <h4 data-i18n="event.return">Volta</h4>
+  <input type="date" id="editVoltaData" />
+  <input type="time" id="editVoltaHora" />
+  <input type="text" id="editVoltaPartida" data-i18n-placeholder="event.departurePlaceholder" placeholder="Partida" />
+  <input type="text" id="editVoltaChegada" data-i18n-placeholder="event.arrivalPlaceholder" placeholder="Chegada" />
+  <select id="editVoltaTransporte">
+    <option data-i18n="transport.car">carro</option>
+    <option data-i18n="transport.plane">avião</option>
+    <option data-i18n="transport.bus">autocarro</option>
+    <option data-i18n="transport.train">comboio</option>
+    <option data-i18n="transport.other">outro</option>
+  </select>
+
+  <br><br>
+  <button onclick="salvarViagemEditada()" data-i18n="common.save">💾 Salvar</button>
+  <button onclick="fecharModal()" data-i18n="common.cancel">❌ Cancelar</button>
+</div>
+<script type="module" src="js/evento.js"></script>
+</body>
+</html>

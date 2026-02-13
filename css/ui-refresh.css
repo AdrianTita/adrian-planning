@@ -1,0 +1,360 @@
+:root{
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --border:#e2e8f0;
+    --primary:#2563eb;
+    --primary-ink:#ffffff;
+    --positive:#16a34a;
+    --negative:#dc2626;
+    --soft:#f1f5f9;
+    --shadow:0 1px 2px rgba(2,6,23,.06), 0 8px 24px rgba(2,6,23,.08);
+  }
+  
+  /* ---------- Global “UI refresh” overrides (em cima do style.css) ---------- */
+  /* Botões nunca a 100% de largura aqui (corrige o style.css) */
+  button, .btn{ width:auto !important; }
+  
+  /* Tamanho padrão pequeno para todos os botões nestas páginas */
+  button, .btn, .atr-acao{
+    padding:6px 10px !important;
+    font-size:13px !important;
+    line-height:1.15 !important;
+    border-radius:9px !important;
+  }
+  
+  /* Botão primário (Atribuir Funções) */
+  button[data-abrir-atribs]{
+    background:var(--primary) !important;
+    color:var(--primary-ink) !important;
+    border:1px solid var(--primary) !important;
+  }
+  
+  /* Barra de ações dos cartões (Detalhes/Faturação/Editar/Apagar) */
+  .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .actions .btn{
+    background:#1e88e5 !important;
+    border:1px solid #1565c0 !important;
+    color:#fff !important;
+  }
+  .actions .btn:hover{ background:#1565c0 !important; }
+  .actions .btn[data-detalhes-evento],
+  .actions .btn[data-faturacao-evento]{
+    background:#1e88e5 !important;
+    border:1px solid #1565c0 !important;
+    color:#fff !important;
+  }
+  .actions .btn[data-editar-evento]{
+    background:#0f766e !important;
+    border:1px solid #0b5f59 !important;
+    color:#fff !important;
+  }
+  .actions .btn[data-editar-evento]:hover{ background:#0b5f59 !important; }
+  .actions .btn[data-apagar-evento]{
+    background:#dc2626 !important;
+    border:1px solid #b91c1c !important;
+    color:#fff !important;
+  }
+  .actions .btn[data-apagar-evento]:hover{ background:#b91c1c !important; }
+  
+  /* ---------- Cartões mais pequenos/compactos ---------- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px 12px;
+    box-shadow:0 1px 4px rgba(2,6,23,.06);
+  }
+  .badge{
+    display:inline-flex; align-items:center; height:20px;
+    padding:0 8px; font-size:12px; border-radius:999px;
+    background:var(--soft); border:1px solid var(--border); color:#475569;
+  }
+  
+  /* ---------- Grelha das atribuições (cards fixos) ---------- */
+  [id^="atribs-"]{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, 150px);
+    gap:10px;
+  }
+  .atr-card{
+    width:150px;
+    height:96px;
+    background:#e8f1ff;
+    border:1px solid #c7dbf7;
+    border-radius:10px;
+    padding:8px;
+    box-shadow:0 1px 4px rgba(2,6,23,.08);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    cursor:pointer;
+  }
+  .atr-card--empty{
+    background:#e8f1ff;
+    border:1px dashed #9dbbe5;
+    color:#35517a;
+  }
+  .atr-card__role{
+    font-size:12px;
+    font-weight:700;
+    color:#1e293b;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .atr-card__sigla{
+    font-size:18px;
+    font-weight:800;
+    letter-spacing:.5px;
+  }
+  .atr-status-aceite .atr-card__role,
+  .atr-status-aceite .atr-card__sigla,
+  .atr-status-recusado .atr-card__role,
+  .atr-status-recusado .atr-card__sigla,
+  .atr-status-rejeitado .atr-card__role,
+  .atr-status-rejeitado .atr-card__sigla,
+  .atr-status-rejeitada .atr-card__role,
+  .atr-status-rejeitada .atr-card__sigla{
+    color:#fff !important;
+  }
+  .atr-card__icons{
+    display:flex;
+    gap:6px;
+    align-items:center;
+  }
+  .atr-icon{
+    width:20px;
+    height:20px;
+    border-radius:6px;
+    background:#ffffff;
+    border:1px solid rgba(0,0,0,.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+  }
+  .atr-icon--other{
+    color:#dc2626;
+    border-color:rgba(220,38,38,.5);
+  }
+  
+  /* Texto secundário */
+  .muted{ color:var(--muted); }
+  
+  /* ---------- Cores de Aceitar/Recusar/Limpar (forçadas) ---------- */
+  .atr-status-aceite{
+    background:#16a34a !important;
+    border-color:#15803d !important;
+    color:#fff !important;
+  }
+  .atr-status-recusado,
+  .atr-status-rejeitado,
+  .atr-status-rejeitada{
+    background:#dc2626 !important;
+    border-color:#b91c1c !important;
+    color:#fff !important;
+  }
+  .atr-status-pendente{
+    background:#fbbf24 !important;
+    border-color:#f59e0b !important;
+    color:#1f2937 !important;
+  }
+  .atr-status-pendente .atr-card__role,
+  .atr-status-pendente .atr-card__sigla{
+    color:#1f2937 !important;
+  }
+  .atr-status-aceite .muted,
+  .atr-status-recusado .muted,
+  .atr-status-rejeitado .muted,
+  .atr-status-rejeitada .muted{
+    color:rgba(255,255,255,.9) !important;
+  }
+  .atr-status-aceite .atr-acao,
+  .atr-status-recusado .atr-acao,
+  .atr-status-rejeitado .atr-acao,
+  .atr-status-rejeitada .atr-acao{
+    background:#ffffff !important;
+    color:#111827 !important;
+    border:1px solid rgba(255,255,255,.7) !important;
+  }
+  .atr-status-aceite .atr-acao:hover,
+  .atr-status-recusado .atr-acao:hover,
+  .atr-status-rejeitado .atr-acao:hover,
+  .atr-status-rejeitada .atr-acao:hover{
+    background:#f8fafc !important;
+  }
+
+  .atr-acao[data-atr-aceitar]{
+    background:rgba(22,163,74,.12) !important;
+    border:1px solid rgba(22,163,74,.35) !important;
+    color:#065f46 !important;
+  }
+  .atr-acao[data-atr-recusar]{
+    background:rgba(220,38,38,.12) !important;
+    border:1px solid rgba(220,38,38,.35) !important;
+    color:#7f1d1d !important;
+  }
+  .atr-acao[data-atr-limpar]{
+    background:#f1f5f9 !important;
+    border:1px solid #e2e8f0 !important;
+    color:#334155 !important;
+  }
+  
+  /* ---------- Responsivo ---------- */
+  @media (max-width: 760px){
+    .card{ padding:10px }
+    [id^="atribs-"]{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------- My Details ---------- */
+  .my-details .md-tabs{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    margin:12px 0 0;
+  }
+  .my-details .md-tab{
+    background:#0b1a33;
+    color:#fff;
+    border:1px solid #0b1a33;
+    padding:8px 14px !important;
+    border-radius:10px 10px 0 0 !important;
+    font-size:13px !important;
+  }
+  .my-details .md-tab.active{
+    background:#e9f1ff;
+    color:#0f172a;
+    border-color:#0f172a;
+  }
+  .my-details .md-panel{
+    display:none;
+    border:1px solid #0f172a;
+    border-top:none;
+    padding:14px;
+    background:#e9f1ff;
+  }
+  .my-details .md-panel.active{ display:block; }
+  .my-details .md-card{
+    background:#e9f1ff;
+    border:1px solid #9bb7e3;
+    border-radius:10px;
+    padding:12px;
+  }
+  .my-details .md-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:12px 14px;
+  }
+  .my-details .md-span-2{ grid-column: span 2; }
+  .my-details .md-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+  }
+  .my-details label{ font-weight:600; font-size:12px; color:#0f172a; }
+  .my-details input, .my-details select{
+    width:100%;
+    border:1px solid #c6d5f1;
+    border-radius:8px;
+    padding:8px 10px;
+    background:#fff;
+  }
+  .my-details .md-box{
+    border:1px solid #a8c0e8;
+    background:#dbe8ff;
+    padding:10px;
+    border-radius:8px;
+    display:grid;
+    gap:8px;
+  }
+  .my-details .md-box label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:500;
+  }
+  .my-details .md-table{
+    display:grid;
+    gap:6px;
+    background:#f5f9ff;
+    border:1px solid #b7c9ea;
+    border-radius:8px;
+    padding:8px;
+  }
+  .my-details .md-row{
+    display:grid;
+    grid-template-columns: 32px 70px 1fr 1fr;
+    gap:8px;
+    align-items:center;
+  }
+  .my-details .md-head{
+    font-weight:700;
+    color:#0f172a;
+    font-size:12px;
+  }
+  @media (max-width: 900px){
+    .my-details .md-grid{ grid-template-columns: 1fr; }
+    .my-details .md-span-2{ grid-column: span 1; }
+    .my-details .md-row{ grid-template-columns: 32px 70px 1fr; }
+    .my-details .md-row input:last-child{ grid-column: span 2; }
+  }
+
+  /* ---------- Team table ---------- */
+  .team-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    background:#f3f7ff;
+    border:1px solid #c6d5f1;
+  }
+  .team-table thead th{
+    background:#0f1f3a;
+    color:#fff;
+    font-size:12px;
+    text-transform:none;
+    position:sticky;
+    top:0;
+    z-index:1;
+  }
+  .team-table thead .team-filter th{
+    background:#08152a;
+    padding:6px;
+  }
+  .team-table thead .team-filter input{
+    width:100%;
+    padding:6px 8px;
+    border-radius:6px;
+    border:1px solid rgba(255,255,255,.2);
+    background:#ffffff;
+    color:#0f172a;
+    font-size:12px;
+  }
+  .team-table th, .team-table td{
+    padding:8px 10px;
+    border-bottom:1px solid #d8e2f4;
+    font-size:13px;
+    vertical-align:top;
+  }
+  .team-table tbody tr:nth-child(even){ background:#eaf1ff; }
+  .team-table .team-avatar{
+    width:28px; height:28px; border-radius:6px;
+    background:#dbe7ff; display:flex; align-items:center; justify-content:center;
+    font-weight:700; color:#0f172a; font-size:12px;
+    border:1px solid #c6d5f1;
+    overflow:hidden;
+  }
+  .team-table .team-avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .team-table .team-vcard{
+    border:1px solid #9db7e5; background:#fff; padding:4px 6px; border-radius:6px; font-size:12px;
+  }
+  @media (max-width: 900px){
+    .team-table thead .team-filter{ display:none; }
+  }
+  
+  /* ---------- Fundo/Títulos ---------- */
+  body{ background:var(--bg); }
+  h1,h2,h3{ color:var(--ink); }
+  

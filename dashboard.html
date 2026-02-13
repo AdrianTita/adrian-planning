@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="app.dashboardTitle">Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ui-refresh.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .sidebar h2 { margin-top: 0; margin-bottom: 20px; font-size: 18px; }
+    .sidebar button, .sidebar a {
+      width: 100%; background: none; border: none; color: white; padding: 10px;
+      text-align: left; cursor: pointer; font-size: 16px; display: block;
+    }
+    .sidebar a { text-decoration: none; display: block; padding: 10px 0; color: white; font-size: 16px; }
+    .sidebar button:hover, .sidebar button.active { background: #34495e; }
+    .submenu { padding-left: 30px; font-size: 15px; }
+
+    .content { flex: 1; padding: 20px; overflow-y: auto; box-sizing: border-box; background: #ecf0f1; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .tabs button { padding: 8px 12px; margin-right: 5px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+    .tabs button.active { background: #ddd; }
+    .tab-content { margin-top: 10px; padding: 10px; background: #fff; border: 1px solid #ddd; }
+    .card { background: #fff; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; }
+    .card h3 { margin-top: 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid .full { grid-column: span 2; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #ddd; }
+    th, td { padding: 8px; border-bottom: 1px solid #ddd; }
+    th { background: #f5f5f5; text-align: left; }
+    .btn-primary { background: #2c3e50; color: #fff; border: none; padding: 8px 12px; cursor: pointer; }
+    .btn { padding: 6px 10px; cursor: pointer; border: 1px solid #ccc; background: #f9f9f9; }
+    .badge { display: inline-block; padding: 3px 8px; background: #f0f0f0; border-radius: 12px; border: 1px solid #ddd; font-size: 12px; }
+    .muted { color: #666; font-size: 13px; }
+    fieldset { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+    fieldset legend { font-weight: bold; }
+
+    /* Ações do evento */
+    button[data-editar-evento],
+    button[data-apagar-evento],
+    button[data-detalhes-evento],
+    button[data-faturacao-evento],
+    button[data-abrir-atribs] {
+      background: #1e88e5;
+      border: 1px solid #1565c0;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    button[data-editar-evento]:hover,
+    button[data-apagar-evento]:hover,
+    button[data-detalhes-evento]:hover,
+    button[data-faturacao-evento]:hover,
+    button[data-abrir-atribs]:hover { background: #1565c0; }
+
+    /* Atribuições */
+    .atr-chip { display:inline-block; padding:6px 10px; margin:4px; border-radius:8px; border:1px solid #ddd; }
+    .atr-status-aceite { background:#e8f5e9; border-color:#4caf50; }
+    .atr-status-pendente { background:#fff8e1; border-color:#ffc107; }
+    .atr-status-recusado { background:#ffebee; border-color:#f44336; }
+
+    .atr-acao {
+      background:#1e88e5; border:1px solid #1565c0; color:#fff;
+      padding:4px 8px; border-radius:6px; cursor:pointer; font-size:12px;
+    }
+    .atr-acao:hover { background:#1565c0; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2 data-i18n="sidebar.title">EA • Weekly Planner</h2>
+
+    <div style="margin: 10px 0 18px;">
+      <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+      <select id="langSelect" style="width:100%; margin-top:6px;">
+        <option value="en" data-i18n="lang.en">English</option>
+        <option value="pt" data-i18n="lang.pt">Português</option>
+        <option value="de" data-i18n="lang.de">Deutsch</option>
+        <option value="ro" data-i18n="lang.ro">Română</option>
+        <option value="fr" data-i18n="lang.fr">Français</option>
+        <option value="es" data-i18n="lang.es">Espanhol</option>
+      </select>
+    </div>
+
+    <button data-section="company" class="active"><span>🏢 </span><span data-i18n="sidebar.company">Company</span></button>
+    <button data-section="planning"><span>📅 </span><span data-i18n="sidebar.planning">Planning Semanal</span></button>
+    <button data-section="damages"><span>🛠 </span><span data-i18n="sidebar.damages">Report Damages</span></button>
+    <div class="submenu">
+      <button data-section="teamList"><span>📋 </span><span data-i18n="sidebar.teamlist">The AT Team</span></button>
+      <button data-section="myDetails"><span>👤 </span><span data-i18n="sidebar.mydetails">My Details</span></button>
+    </div>
+    <div id="adminLinks" style="display: none; margin-top: 20px;">
+      <hr>
+      <a href="admin-users.html">🧑 <span data-i18n="sidebar.users">Gestão de Utilizadores</span></a><br>
+      <a href="config.html">⚙️ <span data-i18n="sidebar.config">Configuração</span></a><br>
+    </div>
+
+    <div style="margin-top:20px;">
+      <hr>
+      <button id="btnLogout"><span>🚪 </span><span data-i18n="common.logout">Logout</span></button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="planning" class="section">
+      <h2 data-i18n="section.planning">Planning Semanal</h2>
+      <div id="planningAdminActions" style="display: none;">
+        <button id="abrirModalBtn">➕ <span data-i18n="button.create">Criar Evento</span></button>
+        <button onclick="atualizarEstruturaAtribuicoesSemanaAtual()">🔄 <span data-i18n="button.updateAssignments">Atualizar estrutura das atribuições</span></button>
+
+        <div id="modalCriarEvento" style="display:none; background:white; border:1px solid #ccc; padding:20px; margin-top:20px;">
+          <h3>🗓️ <span data-i18n="event.new">Novo Evento</span></h3>
+          <label data-i18n="event.name">Nome</label>
+          <input type="text" id="eventoNome" required><br>
+          <label data-i18n="event.start">Data de Início</label>
+          <input type="date" id="eventoInicio" required><br>
+          <label data-i18n="event.end">Data de Fim</label>
+          <input type="date" id="eventoFim"><br>
+          <label data-i18n="event.location">Local</label>
+          <input type="text" id="eventoLocal" required><br>
+          <label data-i18n="event.leader">Project Leader</label>
+          <input type="text" id="eventoResponsavel"><br>
+          <label data-i18n="label.notes">Observações</label>
+          <textarea id="eventoObs" rows="3" data-i18n-placeholder="label.notes" placeholder="Notas internas"></textarea><br>
+          <label style="display:flex; align-items:center; gap:8px; margin:6px 0;">
+            <input type="checkbox" id="eventoVisivel">
+            <span data-i18n="event.visible">Visível para utilizadores</span>
+          </label>
+
+          <fieldset>
+            <legend data-i18n="event.roles">Funções</legend>
+            <div class="muted" style="margin-bottom:6px;" data-i18n="event.rolesHint">Sugestões vêm de ⚙️ Configuração → Serviços.</div>
+            <select id="funcaoSelect">
+              <option value="" data-i18n="event.selectRole">Selecionar função...</option>
+            </select>
+            <button id="adicionarFuncaoBtn" data-i18n="event.addRole">+ Função</button>
+            <ul id="funcoesLista" class="muted"></ul>
+          </fieldset>
+
+          <div style="margin-top:10px;">
+            <button id="salvarEventoBtn" class="btn-primary" data-i18n="button.save">Guardar</button>
+            <button onclick="document.getElementById('modalCriarEvento').style.display='none'">❌ <span data-i18n="button.cancel">Cancelar</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="eventosContainer"></div>
+    </div>
+
+    <div id="company" class="section active">
+      <h1>🏢 <span data-i18n="section.company.title">Company</span></h1>
+      <p data-i18n="section.company.welcome">Bem-vindo ao painel da empresa Adrian Events.</p>
+    </div>
+
+    <div id="damages" class="section">
+      <h1>🛠 <span data-i18n="section.damages.title">Report Damages</span></h1>
+      <p data-i18n="section.damages.desc">Formulário para registar problemas com material.</p>
+    </div>
+
+    <div id="team" class="section">
+      <h1>👥 <span data-i18n="section.team.title">Team</span></h1>
+      <p data-i18n="section.team.desc">Submenus abaixo: "The AT Team" e "My Details"</p>
+    </div>
+
+    <div id="teamList" class="section">
+      <h1>📋 <span data-i18n="section.teamlist">The AT Team</span></h1>
+      <table id="teamTable" class="team-table">
+        <thead>
+          <tr class="team-filter">
+            <th></th>
+            <th></th>
+            <th><input id="teamFilterFirst" data-i18n-placeholder="placeholder.firstName" placeholder="First name"></th>
+            <th><input id="teamFilterLast" data-i18n-placeholder="placeholder.lastName" placeholder="Last name"></th>
+            <th><input id="teamFilterInitials" data-i18n-placeholder="team.filterInitials" placeholder="Initials"></th>
+            <th><input id="teamFilterAddress" data-i18n-placeholder="team.filterAddress" placeholder="Address"></th>
+            <th><input id="teamFilterPhone" data-i18n-placeholder="team.filterPhone" placeholder="Phone/Mobile"></th>
+            <th><input id="teamFilterEmail" data-i18n-placeholder="team.filterEmail" placeholder="Email"></th>
+            <th><input id="teamFilterBirth" data-i18n-placeholder="team.filterBirth" placeholder="Date of birth"></th>
+            <th></th>
+          </tr>
+          <tr>
+            <th data-i18n="table.index">#</th>
+            <th data-i18n="table.photo">Photo</th>
+            <th data-i18n="table.firstName">First name</th>
+            <th data-i18n="table.lastName">Last name</th>
+            <th data-i18n="table.initials">Initials</th>
+            <th data-i18n="table.address">Morada</th>
+            <th data-i18n="table.phoneMobile">Phone/Mobile</th>
+            <th data-i18n="table.email">Email</th>
+            <th data-i18n="table.birth">Date of Birth</th>
+            <th data-i18n="table.vcard">Vcard</th>
+          </tr>
+        </thead>
+        <tbody id="teamTableBody"></tbody>
+      </table>
+    </div>
+
+    <div id="myDetails" class="section my-details">
+      <h1>👤 <span data-i18n="section.mydetails">My Details</span></h1>
+
+      <div class="md-tabs" role="tablist" aria-label="My details tabs">
+        <button class="md-tab active" data-tab="md-general" data-i18n="tab.general">General</button>
+        <button class="md-tab" data-tab="md-settings" data-i18n="tab.settings">Settings</button>
+        <button class="md-tab" data-tab="md-longines" data-i18n="tab.longines">Longines articles</button>
+        <button class="md-tab" data-tab="md-driving" data-i18n="tab.driving">Driving licence</button>
+        <button class="md-tab" data-tab="md-passport" data-i18n="tab.passport">Passport</button>
+        <button class="md-tab" data-tab="md-travel-cards" data-i18n="tab.travelCards">Travel cards</button>
+        <button class="md-tab" data-tab="md-flight" data-i18n="tab.flightPrefs">Flight preferences</button>
+        <button class="md-tab" data-tab="md-links" data-i18n="tab.hyperlinks">Hyperlinks</button>
+      </div>
+
+      <div id="md-general" class="md-panel active">
+        <div class="md-card">
+          <div class="md-grid">
+            <div>
+              <label data-i18n="label.salutation">Salutation</label>
+              <select id="pSalutation">
+                <option value=""></option>
+                <option value="Mr">Mr.</option>
+                <option value="Ms">Ms.</option>
+                <option value="Mrs">Mrs.</option>
+              </select>
+            </div>
+            <div></div>
+            <div>
+              <label data-i18n="label.firstName">First name</label>
+              <input id="pFirstName" data-i18n-placeholder="placeholder.firstName" placeholder="First name">
+            </div>
+            <div>
+              <label data-i18n="label.lastName">Last name</label>
+              <input id="pLastName" data-i18n-placeholder="placeholder.lastName" placeholder="Last name">
+            </div>
+            <div>
+              <label data-i18n="label.profilePic">Profile picture (URL)</label>
+              <input id="pProfilePic" data-i18n-placeholder="placeholder.profilePic" placeholder="https://...">
+            </div>
+            <div>
+              <label data-i18n="label.email">E-mail</label>
+              <input id="pEmail" type="email">
+            </div>
+            <div>
+              <label data-i18n="label.street">Street</label>
+              <input id="pStreet">
+            </div>
+            <div>
+              <label data-i18n="label.zip">Zip code</label>
+              <input id="pZip">
+            </div>
+            <div>
+              <label data-i18n="label.city">City</label>
+              <input id="pCity">
+            </div>
+            <div>
+              <label data-i18n="label.country">Country</label>
+              <input id="pCountry">
+            </div>
+            <div>
+              <label data-i18n="label.phone">Phone</label>
+              <input id="pPhone">
+            </div>
+            <div>
+              <label data-i18n="label.mobile">Mobile</label>
+              <input id="pMobile">
+            </div>
+            <div>
+              <label data-i18n="label.fax">Fax</label>
+              <input id="pFax">
+            </div>
+            <div>
+              <label data-i18n="label.birth">Date of birth</label>
+              <input id="pBirthDate" type="date">
+            </div>
+            <div>
+              <label data-i18n="label.entryDate">Entry date</label>
+              <input id="pEntryDate" type="date">
+            </div>
+            <div class="md-span-2" id="adminOnlyCost" style="display:none;">
+              <label data-i18n="profile.dailyRate">Custo diário (€)</label>
+              <input id="pDailyRate" type="number" step="0.01" min="0" data-i18n-placeholder="profile.dailyRatePlaceholder" placeholder="ex.: 65">
+              <div style="margin-top:8px;">
+                <button id="saveDailyRateBtn" class="btn-primary" data-i18n="profile.saveCost">Guardar custo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span id="saveMyDetailsStatus" class="muted"></span>
+        </div>
+      </div>
+
+      <div id="md-settings" class="md-panel">
+        <div class="md-card">
+          <div class="md-grid">
+            <div>
+              <label data-i18n="label.systemLanguage">System language</label>
+              <select id="pSystemLang">
+                <option value="en">English</option>
+                <option value="pt">Português</option>
+                <option value="de">Deutsch</option>
+                <option value="ro">Română</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+              </select>
+            </div>
+            <div>
+              <label data-i18n="label.systemColor">System color</label>
+              <select id="pSystemColor">
+                <option value=""></option>
+                <option value="azure">azure</option>
+                <option value="blue">blue</option>
+                <option value="green">green</option>
+                <option value="gray">gray</option>
+              </select>
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.quickSidebar">Directly opened menu items in the sidebar</div>
+                <label><input type="checkbox" id="pQuickHippodata"> HIPPOdata</label>
+                <label><input type="checkbox" id="pQuickEvents"> Events</label>
+                <label><input type="checkbox" id="pQuickPerformance"> Performance</label>
+                <label><input type="checkbox" id="pQuickMaterials"> Material management</label>
+                <label><input type="checkbox" id="pQuickStaff"> Staff leave & absences</label>
+                <label><input type="checkbox" id="pQuickTeam"> Team</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+
+      <div id="md-longines" class="md-panel">
+        <div class="md-card">
+          <div class="md-grid">
+            <div>
+              <label data-i18n="label.shirtSize">Size shirt</label>
+              <input id="pShirtSize">
+            </div>
+            <div>
+              <label data-i18n="label.correctFit">Correct fit</label>
+              <input id="pCorrectFit">
+            </div>
+            <div>
+              <label data-i18n="label.sleeveLength">Sleeve length</label>
+              <input id="pSleeveLength">
+            </div>
+            <div>
+              <label data-i18n="label.poloSize">Size polo</label>
+              <input id="pPoloSize">
+            </div>
+            <div>
+              <label data-i18n="label.shirtsNeed">Num. shirts need</label>
+              <input id="pShirtsNeed" type="number" min="0" step="1">
+            </div>
+            <div>
+              <label data-i18n="label.poloExists">Num. polo exists</label>
+              <input id="pPoloExists" type="number" min="0" step="1">
+            </div>
+            <div>
+              <label><input id="pWatchAvailable" type="checkbox"> <span data-i18n="label.watchAvailable">Watch</span></label>
+            </div>
+            <div>
+              <label data-i18n="label.watchModel">Model</label>
+              <input id="pWatchModel">
+            </div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+
+      <div id="md-driving" class="md-panel">
+        <div class="md-card">
+          <div class="md-grid">
+            <div class="md-span-2">
+              <label data-i18n="label.drivingLicenseNumber">Drivers licence number</label>
+              <input id="pDlNumber">
+            </div>
+            <div class="md-span-2">
+              <div class="md-table">
+                <div class="md-row md-head">
+                  <div></div>
+                  <div data-i18n="label.category">Category</div>
+                  <div data-i18n="label.validUntil">Valid until</div>
+                  <div data-i18n="label.restrictions">Restrictions</div>
+                </div>
+                <div class="md-row">
+                  <div><input id="pDlB" type="checkbox"></div>
+                  <div>B</div>
+                  <div><input id="pDlBValid" type="date"></div>
+                  <div><input id="pDlBRestr"></div>
+                </div>
+                <div class="md-row">
+                  <div><input id="pDlBE" type="checkbox"></div>
+                  <div>BE</div>
+                  <div><input id="pDlBEValid" type="date"></div>
+                  <div><input id="pDlBERestr"></div>
+                </div>
+                <div class="md-row">
+                  <div><input id="pDlC1" type="checkbox"></div>
+                  <div>C1</div>
+                  <div><input id="pDlC1Valid" type="date"></div>
+                  <div><input id="pDlC1Restr"></div>
+                </div>
+                <div class="md-row">
+                  <div><input id="pDlC1E" type="checkbox"></div>
+                  <div>C1E</div>
+                  <div><input id="pDlC1EValid" type="date"></div>
+                  <div><input id="pDlC1ERestr"></div>
+                </div>
+                <div class="md-row">
+                  <div><input id="pDlC" type="checkbox"></div>
+                  <div>C</div>
+                  <div><input id="pDlCValid" type="date"></div>
+                  <div><input id="pDlCRestr"></div>
+                </div>
+                <div class="md-row">
+                  <div><input id="pDlCE" type="checkbox"></div>
+                  <div>CE</div>
+                  <div><input id="pDlCEValid" type="date"></div>
+                  <div><input id="pDlCERestr"></div>
+                </div>
+              </div>
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.driverCard">Driver card</div>
+                <label><input id="pDriverCardExists" type="checkbox"> <span data-i18n="label.driverCardExists">Driver card exists</span></label>
+                <div class="md-grid">
+                  <div><label data-i18n="label.cardNumber">card number</label><input id="pDriverCardNumber"></div>
+                  <div><label data-i18n="label.validUntil">valid until</label><input id="pDriverCardValid" type="date"></div>
+                </div>
+              </div>
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.fqnCard">Driver qualification card (FQN)</div>
+                <label><input id="pFqnAvailable" type="checkbox"> <span data-i18n="label.fqnAvailable">FQN card available</span></label>
+                <div class="md-grid">
+                  <div><label data-i18n="label.serialNumber">Serial number</label><input id="pFqnSerial"></div>
+                  <div><label data-i18n="label.expireDate">Expire date</label><input id="pFqnExpire" type="date"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+
+      <div id="md-passport" class="md-panel">
+        <div class="md-card">
+          <div class="md-grid">
+            <div class="md-span-2">
+              <label data-i18n="label.globalEntry">Global Entry (USA)</label>
+              <input id="pGlobalEntry">
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.passport1">Passport no. 1</div>
+                <div class="md-grid">
+                  <div><label data-i18n="label.passportNo">Passport No.</label><input id="pPassNo1"></div>
+                  <div><label data-i18n="label.lastName">Last name(s)</label><input id="pPassLast1"></div>
+                  <div><label data-i18n="label.firstName">First name(s)</label><input id="pPassFirst1"></div>
+                  <div><label data-i18n="label.nationality">Nationality</label><input id="pPassNat1"></div>
+                  <div><label data-i18n="label.gender">Gender</label><input id="pPassGender1"></div>
+                  <div><label data-i18n="label.placeBirth">Place of birth</label><input id="pPassBirth1"></div>
+                  <div><label data-i18n="label.placeIssue">Place of issue</label><input id="pPassIssue1"></div>
+                  <div><label data-i18n="label.issueDate">Date of issue</label><input id="pPassIssueDate1" type="date"></div>
+                  <div><label data-i18n="label.validUntil">Valid until</label><input id="pPassValid1" type="date"></div>
+                </div>
+              </div>
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.passport2">Passport no. 2</div>
+                <div class="md-grid">
+                  <div><label data-i18n="label.passportNo">Passport No.</label><input id="pPassNo2"></div>
+                  <div><label data-i18n="label.lastName">Last name(s)</label><input id="pPassLast2"></div>
+                  <div><label data-i18n="label.firstName">First name(s)</label><input id="pPassFirst2"></div>
+                  <div><label data-i18n="label.nationality">Nationality</label><input id="pPassNat2"></div>
+                  <div><label data-i18n="label.gender">Gender</label><input id="pPassGender2"></div>
+                  <div><label data-i18n="label.placeBirth">Place of birth</label><input id="pPassBirth2"></div>
+                  <div><label data-i18n="label.placeIssue">Place of issue</label><input id="pPassIssue2"></div>
+                  <div><label data-i18n="label.issueDate">Date of issue</label><input id="pPassIssueDate2" type="date"></div>
+                  <div><label data-i18n="label.validUntil">Valid until</label><input id="pPassValid2" type="date"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+
+      <div id="md-travel-cards" class="md-panel">
+        <div class="md-card">
+          <div class="md-grid">
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.frequentFlyer">Frequent Flyer</div>
+                <div class="md-grid">
+                  <div><label data-i18n="label.card">Card</label><input id="pFFCard1"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pFFNumber1"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pFFCard2"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pFFNumber2"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pFFCard3"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pFFNumber3"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pFFCard4"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pFFNumber4"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pFFCard5"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pFFNumber5"></div>
+                </div>
+              </div>
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.carRental">Car Rental</div>
+                <div class="md-grid">
+                  <div><label data-i18n="label.card">Card</label><input id="pCarCard1"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pCarNumber1"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pCarCard2"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pCarNumber2"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pCarCard3"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pCarNumber3"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pCarCard4"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pCarNumber4"></div>
+                </div>
+              </div>
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.hotelBonus">Hotel Bonus Card</div>
+                <div class="md-grid">
+                  <div><label data-i18n="label.card">Card</label><input id="pHotelCard1"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pHotelNumber1"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pHotelCard2"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pHotelNumber2"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pHotelCard3"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pHotelNumber3"></div>
+                  <div><label data-i18n="label.card">Card</label><input id="pHotelCard4"></div>
+                  <div><label data-i18n="label.cardNumber">Card number</label><input id="pHotelNumber4"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+
+      <div id="md-flight" class="md-panel">
+        <div class="md-card">
+          <div class="md-grid">
+            <div>
+              <label data-i18n="label.preferredSeat">Preferred seat</label>
+              <input id="pPrefSeat">
+            </div>
+            <div>
+              <label data-i18n="label.preferredMeal">Preferred meal</label>
+              <input id="pPrefMeal">
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.preferredHomeAirport">Preferred home airport</div>
+                <div class="md-grid">
+                  <div><label>1.</label><input id="pHomeAirport1"></div>
+                  <div><label>2.</label><input id="pHomeAirport2"></div>
+                  <div><label>3.</label><input id="pHomeAirport3"></div>
+                </div>
+              </div>
+            </div>
+            <div class="md-span-2">
+              <div class="md-box">
+                <div class="muted" data-i18n="label.altHomeAirport">Alternative home airport</div>
+                <div class="md-grid">
+                  <div><label>1.</label><input id="pAltAirport1"></div>
+                  <div><label>2.</label><input id="pAltAirport2"></div>
+                  <div><label>3.</label><input id="pAltAirport3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+
+      <div id="md-links" class="md-panel">
+        <div class="md-card">
+          <div class="md-grid">
+            <div class="md-span-2"><label>Link 1</label><input id="pLink1" placeholder="https://"></div>
+            <div class="md-span-2"><label>Link 2</label><input id="pLink2" placeholder="https://"></div>
+            <div class="md-span-2"><label>Link 3</label><input id="pLink3" placeholder="https://"></div>
+            <div class="md-span-2"><label>Link 4</label><input id="pLink4" placeholder="https://"></div>
+            <div class="md-span-2"><label>Link 5</label><input id="pLink5" placeholder="https://"></div>
+          </div>
+        </div>
+        <div class="md-actions">
+          <button class="btn-primary md-save" data-i18n="profile.saveDetails">Guardar dados</button>
+          <span class="muted"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Detalhes do Evento (despesas + viagens + totais) -->
+    <div id="modalDetalhesEvento" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:9999;">
+      <div style="background:#fff; border:1px solid #ccc; width:min(1000px,95vw); margin:40px auto; padding:16px; border-radius:8px;">
+        <h3>💼 <span data-i18n="details.title">Detalhes do Evento</span></h3>
+        <div id="detalhesEventoHeader" class="muted" style="margin-bottom:8px;"></div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin:8px 0;">
+          <button id="btnTabDespesas" class="btn" style="background:#e3f2fd;border:1px solid #90caf9;" data-i18n="details.expenses">Despesas</button>
+          <button id="btnTabViagens" class="btn" data-i18n="details.trips">Viagens (carros)</button>
+          <button id="btnTabTotais" class="btn" data-i18n="details.totals">Totais</button>
+          <button id="btnExportCSV" class="btn" data-i18n="details.export">Exportar CSV</button>
+          <button id="fecharModalDetalhes" class="btn" style="margin-left:auto" data-i18n="details.close">Fechar</button>
+        </div>
+
+        <!-- DESPESAS -->
+        <div id="tabDespesas" class="tab-content">
+          <div class="grid">
+            <div><label data-i18n="expenses.date">Data</label><input type="date" id="despData"></div>
+            <div><label data-i18n="expenses.category">Categoria</label><input id="despCategoria" data-i18n-placeholder="expenses.categoryPlaceholder" placeholder="Ex.: Portagens, Refeições, Hotel"></div>
+            <div><label data-i18n="expenses.amount">Valor (€)</label><input id="despValor" type="number" step="0.01" min="0"></div>
+            <div><label data-i18n="expenses.user">Utilizador (responsável)</label><select id="despUser"></select></div>
+            <div class="full"><label data-i18n="expenses.note">Nota</label><input id="despNota" data-i18n-placeholder="expenses.notePlaceholder" placeholder="Observações"></div>
+          </div>
+          <div style="margin-top:8px;"><button id="btnSalvarDespesa" class="btn-primary" data-i18n="expenses.add">Adicionar despesa</button></div>
+
+          <h4 style="margin-top:16px;" data-i18n="expenses.log">Registo de despesas</h4>
+          <table>
+            <thead><tr>
+              <th data-i18n="expenses.date">Data</th>
+              <th data-i18n="expenses.category">Categoria</th>
+              <th data-i18n="expenses.amount">Valor</th>
+              <th data-i18n="expenses.userShort">User</th>
+              <th data-i18n="expenses.note">Nota</th>
+              <th data-i18n="common.actions">Ações</th>
+            </tr></thead>
+            <tbody id="despesasTabela"></tbody>
+          </table>
+        </div>
+
+        <!-- VIAGENS (CARROS) -->
+        <div id="tabViagens" class="tab-content" style="display:none;">
+          <div class="grid">
+            <div>
+              <label data-i18n="trips.car">Carro</label>
+              <select id="viCarro"></select>
+            </div>
+            <div>
+              <label data-i18n="trips.kmOutbound">Km Ida</label>
+              <input id="viKmIda" type="number" step="1" min="0" data-i18n-placeholder="trips.kmPlaceholder" placeholder="ex.: 120">
+            </div>
+            <div>
+              <label data-i18n="trips.kmReturn">Km Volta</label>
+              <input id="viKmVolta" type="number" step="1" min="0" data-i18n-placeholder="trips.kmPlaceholder" placeholder="ex.: 120">
+            </div>
+            <div class="full muted">
+              <span data-i18n="trips.note">* Cada carro é registado uma vez por evento. Se várias pessoas usarem o mesmo carro, os kms contam apenas 1x.</span>
+            </div>
+          </div>
+          <div style="margin-top:8px;"><button id="btnSalvarViagem" class="btn-primary" data-i18n="trips.save">Guardar viagem</button></div>
+
+          <h4 style="margin-top:16px;" data-i18n="trips.logged">Viagens registadas</h4>
+          <table>
+            <thead><tr>
+              <th data-i18n="trips.car">Carro</th>
+              <th data-i18n="trips.plate">Matrícula</th>
+              <th data-i18n="trips.kmOutbound">Km Ida</th>
+              <th data-i18n="trips.kmReturn">Km Volta</th>
+              <th data-i18n="trips.priceKm">€/km</th>
+              <th data-i18n="trips.cost">Custo</th>
+              <th data-i18n="common.actions">Ações</th>
+            </tr></thead>
+            <tbody id="viagensTabela"></tbody>
+          </table>
+        </div>
+
+        <!-- TOTAIS -->
+        <div id="tabTotais" class="tab-content" style="display:none;">
+          <div id="totaisResumo" class="card"></div>
+          <div>
+            <h4 data-i18n="totals.report">Relatório por período</h4>
+            <div class="grid">
+              <div><label data-i18n="totals.start">Início</label><input type="date" id="relInicio"></div>
+              <div><label data-i18n="totals.end">Fim</label><input type="date" id="relFim"></div>
+              <div><label data-i18n="totals.user">Utilizador</label><select id="relUser"></select></div>
+            </div>
+            <div style="margin-top:8px;"><button id="btnCalcularRelatorio" class="btn" data-i18n="totals.calc">Calcular</button></div>
+            <div id="relatorioResultado" class="card" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Faturação do Evento (placeholder compatível) -->
+    <div id="modalFaturacao" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:9999;">
+      <div style="background:#fff; border:1px solid #ccc; width:min(900px,95vw); margin:40px auto; padding:16px; border-radius:8px;">
+        <h3>📄 <span data-i18n="billing.title">Faturação do Evento</span></h3>
+        <div id="fatHeader" class="muted" style="margin-bottom:8px;"></div>
+
+        <div class="card">
+          <div class="grid">
+            <div><label data-i18n="billing.client">Cliente / Entidade</label><input id="fatCliente" data-i18n-placeholder="billing.clientPlaceholder" placeholder="Nome do cliente"></div>
+            <div><label data-i18n="billing.doc">Nº Documento (opcional)</label><input id="fatDoc" data-i18n-placeholder="billing.docPlaceholder" placeholder="Ex.: F2025-001"></div>
+            <div><label data-i18n="billing.date">Data</label><input type="date" id="fatData"></div>
+            <div>
+              <label data-i18n="billing.status">Estado</label>
+              <select id="fatEstado">
+                <option value="">—</option>
+                <option data-i18n="billing.statusDraft">Rascunho</option>
+                <option data-i18n="billing.statusIssued">Emitido</option>
+                <option data-i18n="billing.statusPaid">Pago</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 data-i18n="billing.addItem">Adicionar item a faturar</h4>
+          <div class="grid">
+            <div>
+              <label data-i18n="billing.type">Tipo</label>
+              <select id="fatTipo">
+                <option value="servico" data-i18n="billing.typeService">Serviço</option>
+                <option value="despesa" data-i18n="billing.typeExpense">Despesa</option>
+              </select>
+            </div>
+            <div><label data-i18n="billing.product">Produto</label><select id="fatProduto"></select></div>
+            <div><label data-i18n="billing.qty">Qtde</label><input type="number" id="fatQtde" step="1" min="1" value="1"></div>
+            <div><label data-i18n="billing.costPrice">Preço custo (€)</label><input type="number" id="fatCusto" step="0.01" min="0"></div>
+            <div><label data-i18n="billing.billPrice">Preço faturação (€)</label><input type="number" id="fatFatur" step="0.01" min="0"></div>
+          </div>
+          <div style="margin-top:8px;"><button id="fatAdd" class="btn-primary" data-i18n="common.add">Adicionar</button></div>
+        </div>
+
+        <h4 data-i18n="billing.items">Itens</h4>
+        <table>
+          <thead><tr>
+            <th data-i18n="billing.type">Tipo</th>
+            <th data-i18n="billing.product">Produto</th>
+            <th data-i18n="billing.qty">Qtde</th>
+            <th data-i18n="billing.cost">Custo</th>
+            <th data-i18n="billing.billing">Faturação</th>
+            <th data-i18n="common.actions">Ações</th>
+          </tr></thead>
+          <tbody id="fatTabela"></tbody>
+        </table>
+
+        <div class="card" style="margin-top:10px;">
+          <div><strong data-i18n="billing.totalCost">Total custo:</strong> €<span id="fatTotalCusto">0.00</span></div>
+          <div><strong data-i18n="billing.totalBilling">Total faturação:</strong> €<span id="fatTotalFatur">0.00</span></div>
+          <div><strong data-i18n="billing.margin">Margem:</strong> €<span id="fatMargem">0.00</span></div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button id="fatExportCSV" class="btn" data-i18n="details.export">Exportar CSV</button>
+          <button id="fatFechar" class="btn" style="margin-left:auto;" data-i18n="details.close">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Detalhe da Pessoa -->
+    <div id="modalPessoa" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:9999;">
+      <div style="background:#fff; border:1px solid #ccc; width:min(520px,95vw); margin:80px auto; padding:16px; border-radius:8px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <h3 style="margin:0;" data-i18n="person.modalTitle">Detalhe da Pessoa</h3>
+          <button id="fecharModalPessoa" class="btn" style="margin-left:auto;" data-i18n="person.close">Fechar</button>
+        </div>
+        <div class="card">
+          <div><strong data-i18n="label.name">Nome</strong>: <span id="mpNome"></span></div>
+          <div><strong data-i18n="label.email">Email</strong>: <span id="mpEmail"></span></div>
+          <div><strong data-i18n="label.phone">Telefone</strong>: <span id="mpTel"></span></div>
+          <div><strong data-i18n="person.role">Função</strong>: <span id="mpFuncao"></span></div>
+          <div><strong data-i18n="event.personCost">Custo pessoa (€)</strong>: <span id="mpCusto"></span></div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button id="mpAceitar" class="atr-acao" data-i18n="eventUser.accept">Aceitar</button>
+          <button id="mpRecusar" class="atr-acao" data-i18n="eventUser.reject">Recusar</button>
+          <button id="mpEnviarConvite" class="atr-acao" data-i18n="eventUser.sendInvite">Enviar convite</button>
+          <button id="mpApagar" class="atr-acao" data-i18n="common.delete">Apagar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/dashboard.js"></script>
+  <script>
+    // Navegação lateral
+    const btns = document.querySelectorAll('.sidebar [data-section]');
+    const sections = document.querySelectorAll('.content .section');
+    btns.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-section');
+        sections.forEach(sec=>sec.classList.toggle('active', sec.id===id));
+        btns.forEach(b=>b.classList.toggle('active', b===btn));
+      });
+    });
+
+    // Tabs "My Details"
+    const mdTabBtns = document.querySelectorAll('#myDetails .md-tabs .md-tab');
+    mdTabBtns.forEach(tb=>{
+      tb.addEventListener('click', ()=>{
+        mdTabBtns.forEach(t=>t.classList.toggle('active', t===tb));
+        document.querySelectorAll('#myDetails .md-panel').forEach(c=>c.classList.remove('active'));
+        const id = tb.getAttribute('data-tab');
+        const panel = document.getElementById(id);
+        if (panel) panel.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

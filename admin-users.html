@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="adminUsers.title">Gestão de Utilizadores</title>
+  <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ui-refresh.css">
+  <style>
+    body { margin:0; font-family:sans-serif; background:#ecf0f1; }
+    .wrap { max-width: 1100px; margin: 24px auto; padding: 16px; }
+    h1 { margin: 0 0 12px; }
+    .card { background:#fff; border:1px solid #ddd; border-radius:6px; padding:16px; margin-bottom:16px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:12px; }
+    .grid .full { grid-column: span 4; }
+    label { display:block; font-weight:600; margin-bottom:4px; }
+    input, select { width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:6px; }
+    .btn { padding: 8px 12px; border:1px solid #ccc; background:#f9f9f9; cursor:pointer; border-radius:6px; }
+    .btn-primary { background:#2c3e50; color:#fff; border:none; }
+    table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #ddd; }
+    th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
+    th { background:#f5f5f5; }
+    .actions button { margin-right:6px; }
+    .muted { color:#666; font-size:13px; }
+    .info-tabs { display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 0; }
+    .info-tab { padding:6px 10px; border:1px solid #0f172a; background:#0f172a; color:#fff; border-radius:8px 8px 0 0; font-size:12px; }
+    .info-tab.active { background:#e9f1ff; color:#0f172a; }
+    .info-panel { display:none; border:1px solid #0f172a; border-top:none; padding:10px; background:#e9f1ff; }
+    .info-panel.active { display:block; }
+    .info-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px 12px; }
+    .info-row { font-size:13px; }
+    .info-list { margin:0; padding-left:16px; font-size:13px; }
+    .info-box { border:1px solid #b7c9ea; background:#f5f9ff; padding:8px; border-radius:8px; }
+    @media (max-width: 720px){
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧑 <span data-i18n="adminUsers.title">Gestão de Utilizadores</span></h1>
+    <div style="margin: 8px 0 16px;">
+      <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+      <select id="langSelect" style="width:100%; max-width:260px; margin-top:6px;">
+        <option value="en" data-i18n="lang.en">English</option>
+        <option value="pt" data-i18n="lang.pt">Português</option>
+        <option value="de" data-i18n="lang.de">Deutsch</option>
+        <option value="ro" data-i18n="lang.ro">Română</option>
+        <option value="fr" data-i18n="lang.fr">Français</option>
+        <option value="es" data-i18n="lang.es">Español</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label data-i18n="adminUsers.name">Nome</label>
+          <input id="uNome" data-i18n-placeholder="placeholder.fullname" placeholder="Nome completo">
+        </div>
+        <div>
+          <label data-i18n="adminUsers.email">Email</label>
+          <input id="uEmail" type="email" data-i18n-placeholder="adminUsers.emailPlaceholder" placeholder="email@dominio.com">
+        </div>
+        <div>
+          <label for="uRole" data-i18n="adminUsers.role">Perfil</label>
+          <select id="uRole" aria-label="User role">
+            <option value="user" data-i18n="role.user">user</option>
+            <option value="admin" data-i18n="role.admin">admin</option>
+          </select>
+        </div>
+        <div>
+          <label data-i18n="adminUsers.initials">Sigla</label>
+          <input id="uSigla" data-i18n-placeholder="adminUsers.initialsPlaceholder" placeholder="Ex.: JE">
+        </div>
+        <div>
+          <label data-i18n="adminUsers.dailyRate">Valor diário (€)</label>
+          <input id="uDailyRate" type="number" step="0.01" min="0" data-i18n-placeholder="adminUsers.dailyRatePlaceholder" placeholder="ex.: 65">
+        </div>
+        <div class="full">
+          <button id="btnNovo" class="btn" data-i18n="common.new">Novo</button>
+          <button id="btnGuardar" class="btn-primary" data-i18n="common.save">Guardar</button>
+          <button id="btnEnviarConvite" class="btn" data-i18n="adminUsers.sendInvite">Enviar convite</button>
+          <button id="btnResetPwd" class="btn" data-i18n="adminUsers.resetPwd">Reset password</button>
+          <span id="status" class="muted" style="margin-left:8px;"></span>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px;">
+        <span data-i18n="adminUsers.tip">Dica: para alterar, seleciona um utilizador na tabela; edita os campos e clica Guardar.</span>
+      </div>
+    </div>
+
+  <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th data-i18n="adminUsers.uid">UID</th>
+            <th data-i18n="adminUsers.name">Nome</th>
+            <th data-i18n="adminUsers.email">Email</th>
+            <th data-i18n="adminUsers.role">Perfil</th>
+            <th data-i18n="adminUsers.initials">Sigla</th>
+            <th data-i18n="adminUsers.dailyRate">Daily Rate (€)</th>
+            <th style="width:150px;" data-i18n="common.actions">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbUsers"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Info -->
+  <div id="modalUserInfo" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.25); z-index:9999;">
+    <div style="background:#fff; border:1px solid #ccc; width:min(860px,95vw); margin:60px auto; padding:16px; border-radius:8px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <h3 style="margin:0;" data-i18n="adminUsers.infoTitle">Info do Utilizador</h3>
+        <button id="closeUserInfo" class="btn" style="margin-left:auto;" data-i18n="person.close">Fechar</button>
+      </div>
+
+      <div class="info-tabs" role="tablist">
+        <button class="info-tab active" data-tab="info-general" data-i18n="tab.general">General</button>
+        <button class="info-tab" data-tab="info-settings" data-i18n="tab.settings">Settings</button>
+        <button class="info-tab" data-tab="info-longines" data-i18n="tab.longines">Longines articles</button>
+        <button class="info-tab" data-tab="info-driving" data-i18n="tab.driving">Driving licence</button>
+        <button class="info-tab" data-tab="info-passport" data-i18n="tab.passport">Passport</button>
+        <button class="info-tab" data-tab="info-travel" data-i18n="tab.travelCards">Travel cards</button>
+        <button class="info-tab" data-tab="info-flight" data-i18n="tab.flightPrefs">Flight preferences</button>
+        <button class="info-tab" data-tab="info-links" data-i18n="tab.hyperlinks">Hyperlinks</button>
+      </div>
+
+      <div id="info-general" class="info-panel active">
+        <div class="info-grid">
+          <div class="info-row"><strong data-i18n="label.name">Nome</strong>: <span id="infoNome"></span></div>
+          <div class="info-row"><strong data-i18n="label.email">Email</strong>: <span id="infoEmail"></span></div>
+          <div class="info-row"><strong data-i18n="label.phone">Telefone</strong>: <span id="infoTel"></span></div>
+          <div class="info-row"><strong data-i18n="label.mobile">Mobile</strong>: <span id="infoMobile"></span></div>
+          <div class="info-row"><strong data-i18n="label.birth">Data de nascimento</strong>: <span id="infoNasc"></span></div>
+          <div class="info-row"><strong data-i18n="label.entryDate">Data de entrada</strong>: <span id="infoEntry"></span></div>
+          <div class="info-row"><strong data-i18n="label.address">Morada</strong>: <span id="infoMorada"></span></div>
+          <div class="info-row"><strong data-i18n="label.country">País</strong>: <span id="infoCountry"></span></div>
+          <div class="info-row"><strong data-i18n="label.transport">Transporte preferido</strong>: <span id="infoTrans"></span></div>
+          <div class="info-row"><strong data-i18n="label.departure">Partida habitual</strong>: <span id="infoPartida"></span></div>
+          <div class="info-row"><strong data-i18n="adminUsers.initials">Sigla</strong>: <span id="infoSigla"></span></div>
+          <div class="info-row"><strong data-i18n="profile.dailyRate">Custo diário (€)</strong>: <span id="infoDaily"></span></div>
+          <div class="info-row"><strong data-i18n="label.profilePic">Profile picture (URL)</strong>: <span id="infoProfilePic"></span></div>
+        </div>
+      </div>
+
+      <div id="info-settings" class="info-panel">
+        <div class="info-grid">
+          <div class="info-row"><strong data-i18n="label.systemLanguage">System language</strong>: <span id="infoSystemLang"></span></div>
+          <div class="info-row"><strong data-i18n="label.systemColor">System color</strong>: <span id="infoSystemColor"></span></div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.quickSidebar">Directly opened menu items in the sidebar</strong>:
+            <span id="infoQuickSidebar"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="info-longines" class="info-panel">
+        <div class="info-grid">
+          <div class="info-row"><strong data-i18n="label.shirtSize">Size shirt</strong>: <span id="infoShirtSize"></span></div>
+          <div class="info-row"><strong data-i18n="label.correctFit">Correct fit</strong>: <span id="infoCorrectFit"></span></div>
+          <div class="info-row"><strong data-i18n="label.sleeveLength">Sleeve length</strong>: <span id="infoSleeveLength"></span></div>
+          <div class="info-row"><strong data-i18n="label.poloSize">Size polo</strong>: <span id="infoPoloSize"></span></div>
+          <div class="info-row"><strong data-i18n="label.shirtsNeed">Num. shirts need</strong>: <span id="infoShirtsNeed"></span></div>
+          <div class="info-row"><strong data-i18n="label.poloExists">Num. polo exists</strong>: <span id="infoPoloExists"></span></div>
+          <div class="info-row"><strong data-i18n="label.watchAvailable">Watch</strong>: <span id="infoWatchAvailable"></span></div>
+          <div class="info-row"><strong data-i18n="label.watchModel">Model</strong>: <span id="infoWatchModel"></span></div>
+        </div>
+      </div>
+
+      <div id="info-driving" class="info-panel">
+        <div class="info-grid">
+          <div class="info-row" style="grid-column: span 2;">
+            <strong data-i18n="label.drivingLicenseNumber">Drivers licence number</strong>:
+            <span id="infoDlNumber"></span>
+          </div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.category">Category</strong>:
+            <span id="infoDlCategories"></span>
+          </div>
+          <div class="info-row" style="grid-column: span 2;">
+            <strong data-i18n="label.driverCard">Driver card</strong>:
+            <span id="infoDriverCard"></span>
+          </div>
+          <div class="info-row" style="grid-column: span 2;">
+            <strong data-i18n="label.fqnCard">Driver qualification card (FQN)</strong>:
+            <span id="infoFqn"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="info-passport" class="info-panel">
+        <div class="info-grid">
+          <div class="info-row" style="grid-column: span 2;">
+            <strong data-i18n="label.globalEntry">Global Entry (USA)</strong>:
+            <span id="infoGlobalEntry"></span>
+          </div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.passport1">Passport no. 1</strong>:
+            <span id="infoPassport1"></span>
+          </div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.passport2">Passport no. 2</strong>:
+            <span id="infoPassport2"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="info-travel" class="info-panel">
+        <div class="info-grid">
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.frequentFlyer">Frequent Flyer</strong>:
+            <span id="infoFF"></span>
+          </div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.carRental">Car Rental</strong>:
+            <span id="infoCarRental"></span>
+          </div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.hotelBonus">Hotel Bonus Card</strong>:
+            <span id="infoHotelBonus"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="info-flight" class="info-panel">
+        <div class="info-grid">
+          <div class="info-row"><strong data-i18n="label.preferredSeat">Preferred seat</strong>: <span id="infoPrefSeat"></span></div>
+          <div class="info-row"><strong data-i18n="label.preferredMeal">Preferred meal</strong>: <span id="infoPrefMeal"></span></div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.preferredHomeAirport">Preferred home airport</strong>:
+            <span id="infoHomeAirports"></span>
+          </div>
+          <div class="info-row info-box" style="grid-column: span 2;">
+            <strong data-i18n="label.altHomeAirport">Alternative home airport</strong>:
+            <span id="infoAltAirports"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="info-links" class="info-panel">
+        <ul class="info-list" id="infoLinks"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { app, db } from './js/firebase-config.js';
+    import {
+      collection, getDocs, doc, setDoc, getDoc, updateDoc, deleteDoc
+    } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+    import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-functions.js';
+    import { initUserLanguage, bindLanguageSelector, t } from './js/i18n.js';
+
+    const tb = document.getElementById('tbUsers');
+    const status = document.getElementById('status');
+    const fNome = document.getElementById('uNome');
+    const fEmail = document.getElementById('uEmail');
+    const fRole = document.getElementById('uRole');
+    const fSigla = document.getElementById('uSigla');
+    const fDaily = document.getElementById('uDailyRate');
+    const btnInvite = document.getElementById('btnEnviarConvite');
+    const btnResetPwd = document.getElementById('btnResetPwd');
+
+    let selectedUid = null;
+    const auth = getAuth();
+    const functions = getFunctions(app, "europe-west1");
+    const sendPlanningInvite = httpsCallable(functions, "sendPlanningInvite");
+    const sendResetPassword = httpsCallable(functions, "sendResetPassword");
+    let currentLang = localStorage.getItem("appLang") || "en";
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentLang = await initUserLanguage(user.uid);
+      const langSelect = document.getElementById("langSelect");
+      bindLanguageSelector(langSelect, user.uid, currentLang);
+      if (langSelect) {
+        langSelect.addEventListener("change", async () => {
+          currentLang = localStorage.getItem("appLang") || langSelect.value;
+          await carregarUsers();
+        });
+      }
+      await carregarUsers();
+    });
+
+    async function carregarUsers() {
+      tb.innerHTML = `<tr><td colspan="7">${t(currentLang, "common.loading") || "A carregar..."}</td></tr>`;
+      const snap = await getDocs(collection(db, 'users'));
+      const rows = [];
+      snap.forEach(d=>{
+        const u = d.data() || {};
+        rows.push({ id: d.id, ...u });
+      });
+      rows.sort((a,b)=> String(a.nome||a.email||a.id).localeCompare(String(b.nome||b.email||b.id)));
+
+      tb.innerHTML = '';
+      for (const u of rows) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="muted">${u.id}</td>
+          <td>${u.nome || '-'}</td>
+          <td>${u.email || '-'}</td>
+          <td>${u.role || 'user'}</td>
+          <td>${u.sigla || '-'}</td>
+          <td>${(Number(u.dailyRate||0)).toFixed(2)}</td>
+          <td class="actions">
+            <button class="btn" data-info="${u.id}">${t(currentLang, "common.info") || "Info"}</button>
+            <button class="btn" data-edit="${u.id}">${t(currentLang, "common.edit") || "Editar"}</button>
+            <button class="btn" data-del="${u.id}">${t(currentLang, "common.delete") || "Apagar"}</button>
+          </td>
+        `;
+        tb.appendChild(tr);
+      }
+
+      tb.querySelectorAll('[data-edit]').forEach(b=>{
+        b.onclick = async ()=>{
+          const uid = b.getAttribute('data-edit');
+          const s = await getDoc(doc(db,'users',uid));
+          if (!s.exists()) return;
+          const u = s.data();
+          selectedUid = uid;
+          fNome.value  = u.nome || '';
+          fEmail.value = u.email || '';
+          fRole.value  = u.role || 'user';
+          fSigla.value = u.sigla || '';
+          fDaily.value = (u.dailyRate ?? 0);
+          status.textContent = `${t(currentLang, "adminUsers.editing") || "A editar"}: ${uid}`;
+        };
+      });
+      tb.querySelectorAll('[data-del]').forEach(b=>{
+        b.onclick = async ()=>{
+          const uid = b.getAttribute('data-del');
+          if (!confirm(t(currentLang, "adminUsers.confirmDelete") || 'Apagar utilizador? (Apenas o doc em /users, não a conta auth)')) return;
+          await deleteDoc(doc(db,'users',uid));
+          if (selectedUid === uid) { selectedUid = null; limparForm(); }
+          await carregarUsers();
+        };
+      });
+
+      tb.querySelectorAll('[data-info]').forEach(b=>{
+        b.onclick = async ()=>{
+          const uid = b.getAttribute('data-info');
+          const s = await getDoc(doc(db,'users',uid));
+          if (!s.exists()) return;
+          const u = s.data() || {};
+          const fullName = [u.firstName, u.lastName].filter(Boolean).join(" ").trim() || u.nome || "-";
+          const addressParts = [u.street, u.zip, u.city, u.country].filter(Boolean);
+          const address = addressParts.join(" ") || u.morada || "-";
+          const set = (id,val)=>{ const el=document.getElementById(id); if (el) el.textContent = (val ?? "") !== "" ? val : "-"; };
+          const list = (arr)=> arr.filter(Boolean).join(", ") || "-";
+          const siglaAuto = (() => {
+            if (u.sigla) return u.sigla;
+            const first = (u.firstName || "").trim();
+            const last = (u.lastName || "").trim();
+            if (first && last) return (first[0] + last[0]).toUpperCase();
+            if (u.nome) {
+              const parts = String(u.nome).trim().split(/\s+/);
+              if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+              if (parts[0]) return parts[0].slice(0, 2).toUpperCase();
+            }
+            return "-";
+          })();
+
+          set("infoNome", fullName);
+          set("infoEmail", u.email);
+          set("infoTel", u.phone || u.telefone);
+          set("infoMobile", u.mobile);
+          set("infoNasc", u.birthDate || u.dataNascimento);
+          set("infoEntry", u.entryDate);
+          set("infoMorada", address);
+          set("infoCountry", u.country);
+          set("infoTrans", u.transportePreferido);
+          set("infoPartida", u.partidaHabitual);
+          set("infoSigla", siglaAuto);
+          set("infoDaily", (u.dailyRate ?? "") !== "" ? `€ ${(Number(u.dailyRate)||0).toFixed(2)}` : "-");
+          set("infoProfilePic", u.profilePic);
+
+          set("infoSystemLang", u.language || "-");
+          set("infoSystemColor", u.systemColor || "-");
+          const quick = u.quickSidebar || {};
+          const quickList = [];
+          if (quick.hippodata) quickList.push("HIPPOdata");
+          if (quick.events) quickList.push("Events");
+          if (quick.performance) quickList.push("Performance");
+          if (quick.materials) quickList.push("Material management");
+          if (quick.staff) quickList.push("Staff leave & absences");
+          if (quick.team) quickList.push("Team");
+          set("infoQuickSidebar", list(quickList));
+
+          const longines = u.longines || {};
+          set("infoShirtSize", longines.shirtSize);
+          set("infoCorrectFit", longines.correctFit);
+          set("infoSleeveLength", longines.sleeveLength);
+          set("infoPoloSize", longines.poloSize);
+          set("infoShirtsNeed", longines.shirtsNeed);
+          set("infoPoloExists", longines.poloExists);
+          set("infoWatchAvailable", longines.watchAvailable ? "Yes" : "No");
+          set("infoWatchModel", longines.watchModel);
+
+          const dl = u.drivingLicense || {};
+          set("infoDlNumber", dl.number);
+          const cats = dl.categories || {};
+          const catItems = ["B","BE","C1","C1E","C","CE"].map(c=>{
+            const it = cats[c] || {};
+            if (!it.enabled) return null;
+            const parts = [];
+            if (it.validUntil) parts.push(`valid ${it.validUntil}`);
+            if (it.restrictions) parts.push(`restr: ${it.restrictions}`);
+            return parts.length ? `${c} (${parts.join(", ")})` : c;
+          }).filter(Boolean);
+          set("infoDlCategories", catItems.join("; ") || "-");
+          const driverCard = dl.driverCard || {};
+          const driverText = driverCard.exists ? `Yes${driverCard.number ? " · " + driverCard.number : ""}${driverCard.validUntil ? " · " + driverCard.validUntil : ""}` : "No";
+          set("infoDriverCard", driverText);
+          const fqn = dl.fqn || {};
+          const fqnText = fqn.available ? `Yes${fqn.serial ? " · " + fqn.serial : ""}${fqn.expire ? " · " + fqn.expire : ""}` : "No";
+          set("infoFqn", fqnText);
+
+          const passport = u.passport || {};
+          set("infoGlobalEntry", passport.globalEntry);
+          const p1 = passport.passport1 || {};
+          const p2 = passport.passport2 || {};
+          const formatPassport = (p)=> {
+            if (!p || Object.values(p).every(v=>!v)) return "-";
+            return [
+              p.number && `# ${p.number}`,
+              p.lastName && `Last: ${p.lastName}`,
+              p.firstName && `First: ${p.firstName}`,
+              p.nationality && `Nat: ${p.nationality}`,
+              p.gender && `Gender: ${p.gender}`,
+              p.placeBirth && `Birth: ${p.placeBirth}`,
+              p.placeIssue && `Issue: ${p.placeIssue}`,
+              p.issueDate && `Issue date: ${p.issueDate}`,
+              p.validUntil && `Valid: ${p.validUntil}`,
+            ].filter(Boolean).join(" · ");
+          };
+          set("infoPassport1", formatPassport(p1));
+          set("infoPassport2", formatPassport(p2));
+
+          const travel = u.travelCards || {};
+          const ff = (travel.frequentFlyer || []).map(x=> (x?.card || x?.number) ? `${x.card || "-"} (${x.number || "-"})` : null).filter(Boolean);
+          const car = (travel.carRental || []).map(x=> (x?.card || x?.number) ? `${x.card || "-"} (${x.number || "-"})` : null).filter(Boolean);
+          const hotel = (travel.hotelBonus || []).map(x=> (x?.card || x?.number) ? `${x.card || "-"} (${x.number || "-"})` : null).filter(Boolean);
+          set("infoFF", ff.join("; ") || "-");
+          set("infoCarRental", car.join("; ") || "-");
+          set("infoHotelBonus", hotel.join("; ") || "-");
+
+          const flight = u.flightPrefs || {};
+          set("infoPrefSeat", flight.preferredSeat);
+          set("infoPrefMeal", flight.preferredMeal);
+          set("infoHomeAirports", list(flight.homeAirports || []));
+          set("infoAltAirports", list(flight.altHomeAirports || []));
+
+          const links = (u.hyperlinks || []).filter(Boolean);
+          const linksEl = document.getElementById("infoLinks");
+          if (linksEl) {
+            linksEl.innerHTML = "";
+            if (!links.length) {
+              const li = document.createElement("li");
+              li.textContent = "-";
+              linksEl.appendChild(li);
+            } else {
+              links.forEach((url)=>{
+                const li = document.createElement("li");
+                li.textContent = url;
+                linksEl.appendChild(li);
+              });
+            }
+          }
+          const modal = document.getElementById("modalUserInfo");
+          if (modal) modal.style.display = "block";
+        };
+      });
+    }
+
+    function limparForm() {
+      fNome.value=''; fEmail.value=''; fRole.value='user'; fSigla.value=''; fDaily.value='';
+      selectedUid=null; status.textContent='';
+    }
+
+    document.getElementById('btnNovo').onclick = limparForm;
+
+    document.getElementById('btnGuardar').onclick = async ()=>{
+      const nome  = fNome.value.trim();
+      const email = fEmail.value.trim();
+      const role  = fRole.value;
+      const sigla = fSigla.value.trim();
+      const daily = parseFloat(fDaily.value || '0');
+
+      if (!email && !nome) { alert(t(currentLang, "adminUsers.alertNeedNameOrEmail") || 'Preenche pelo menos Nome ou Email.'); return; }
+
+      // Guardar em /users/{uid}. Se não houver uid selecionado, usa o email como id “técnico” (ou cria à tua maneira)
+      let uid = selectedUid;
+      if (!uid) {
+        if (!email) { alert(t(currentLang, "adminUsers.alertNeedEmailForNew") || 'Para novo registo sem UID, indica um email para usar como ID.'); return; }
+        uid = email.replace(/[^\w.-]/g,'_'); // simples geração
+      }
+
+      await setDoc(doc(db,'users',uid), {
+        nome: nome || null,
+        email: email || null,
+        role: role || 'user',
+        sigla: sigla || null,
+        dailyRate: isNaN(daily) ? 0 : daily
+      }, { merge: true });
+
+      status.textContent = `${t(currentLang, "common.saved") || "Guardado"} ${uid}`;
+      await carregarUsers();
+    };
+
+    if (btnInvite) btnInvite.onclick = async ()=>{
+      const email = fEmail.value.trim();
+      const nome = fNome.value.trim();
+      if (!email) { alert(t(currentLang, "alert.needUserEmail") || "Indica o email do utilizador."); return; }
+      try {
+        await sendPlanningInvite({
+          email,
+          name: nome || "",
+          continueUrl: window.location.origin + "/index.html",
+          uid: selectedUid || null,
+          language: currentLang
+        });
+        status.textContent = t(currentLang, "email.inviteSent") || "Convite enviado.";
+      } catch (e) {
+        alert((t(currentLang, "email.inviteError") || "Erro ao enviar convite: ") + (e?.message || e));
+      }
+    };
+
+    if (btnResetPwd) btnResetPwd.onclick = async ()=>{
+      const email = fEmail.value.trim();
+      if (!email) { alert(t(currentLang, "alert.needUserEmail") || "Indica o email do utilizador."); return; }
+      try {
+        await sendResetPassword({
+          email,
+          continueUrl: window.location.origin + "/index.html",
+          language: currentLang
+        });
+        status.textContent = t(currentLang, "email.resetSent") || "Reset enviado.";
+      } catch (e) {
+        alert((t(currentLang, "email.resetError") || "Erro ao enviar reset: ") + (e?.message || e));
+      }
+    };
+
+    const closeInfo = document.getElementById("closeUserInfo");
+    if (closeInfo) closeInfo.onclick = ()=> {
+      const modal = document.getElementById("modalUserInfo");
+      if (modal) modal.style.display = "none";
+    };
+
+    document.querySelectorAll(".info-tab").forEach((tb)=>{
+      tb.addEventListener("click", ()=>{
+        document.querySelectorAll(".info-tab").forEach(t=>t.classList.toggle("active", t===tb));
+        document.querySelectorAll(".info-panel").forEach(p=>p.classList.remove("active"));
+        const id = tb.getAttribute("data-tab");
+        const panel = document.getElementById(id);
+        if (panel) panel.classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>

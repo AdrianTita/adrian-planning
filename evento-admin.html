@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="eventAdmin.title">Gestão de Evento - Admin</title>
+  <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ui-refresh.css">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .evento-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+    .funcoes-container { margin-top: 20px; }
+    .funcao-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .funcao-card h4 { margin: 0 0 10px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    input, select { width: 100%; padding: 6px; }
+    button { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1 data-i18n="eventAdmin.titleSimple">Gestão de Evento</h1>
+  <div style="margin: 8px 0 16px;">
+    <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+    <select id="langSelect" style="width:100%; max-width:260px; margin-top:6px;">
+      <option value="en" data-i18n="lang.en">English</option>
+      <option value="pt" data-i18n="lang.pt">Português</option>
+      <option value="de" data-i18n="lang.de">Deutsch</option>
+      <option value="ro" data-i18n="lang.ro">Română</option>
+      <option value="fr" data-i18n="lang.fr">Français</option>
+      <option value="es" data-i18n="lang.es">Español</option>
+    </select>
+  </div>
+  <div>
+    <label data-i18n="eventAdmin.eventName">Nome do Evento:</label><input type="text" id="nomeEvento"><br>
+    <label data-i18n="eventAdmin.date">Data:</label><input type="date" id="dataEvento"><br>
+    <label data-i18n="eventAdmin.location">Local:</label><input type="text" id="localEvento"><br>
+  </div>
+
+  <h2 data-i18n="eventAdmin.rolesTransport">Funções e Transporte</h2>
+  <div id="funcoes" class="funcoes-container">
+    <!-- Aqui os cards de função são inseridos -->
+  </div>
+  <label for="novaFuncao" data-i18n="eventAdmin.newRole">Nova função:</label>
+  <input type="text" id="novaFuncao" data-i18n-placeholder="eventAdmin.newRolePlaceholder" placeholder="Ex: Motorista">
+  <button type="button" id="adicionarFuncao" data-i18n="eventAdmin.addRole">➕ Adicionar Função</button>
+  
+  <ul id="listaFuncoes"></ul>
+  <button id="guardarEvento" data-i18n="eventAdmin.saveEvent">💾 Guardar Evento</button>
+
+  <h2 data-i18n="eventAdmin.assignTitle">Atribuir Pessoa a Evento</h2>
+  <label data-i18n="eventAdmin.user">Utilizador:</label>
+  <select id="userSelect"></select>
+
+  <label data-i18n="eventAdmin.role">Função:</label>
+  <select id="funcaoSelect">
+    <option data-i18n="eventAdmin.roleTeamLeader">Team Leader</option>
+    <option data-i18n="eventAdmin.roleTimekeeper">Cronometrista</option>
+    <option data-i18n="eventAdmin.roleLivestream">Livestream</option>
+  </select>
+
+  <button id="atribuirBtn" data-i18n="eventAdmin.assign">👥 Atribuir</button>
+
+  <h2 data-i18n="eventAdmin.createdEvents">Eventos Criados</h2>
+  <div id="eventosCriados"></div>
+
+  <script type="module" src="js/evento-admin.js"></script>
+</body>
+</html>

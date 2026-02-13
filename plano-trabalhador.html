@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="workerPlan.title">Plano Semanal - Trabalhador</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+    .semana-block {
+      background: white;
+      margin-bottom: 30px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .semana-header {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .evento {
+      margin-bottom: 20px;
+    }
+    .evento h3 {
+      margin: 5px 0;
+    }
+    .funcoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .funcao-box {
+      background: #3498db;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+    }
+    .viagem-detalhes {
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 data-i18n="workerPlan.title">Plano Semanal</h1>
+  <div style="margin: 8px 0 16px;">
+    <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+    <select id="langSelect" style="width:100%; max-width:260px; margin-top:6px;">
+      <option value="en" data-i18n="lang.en">English</option>
+      <option value="pt" data-i18n="lang.pt">Português</option>
+      <option value="de" data-i18n="lang.de">Deutsch</option>
+      <option value="ro" data-i18n="lang.ro">Română</option>
+      <option value="fr" data-i18n="lang.fr">Français</option>
+      <option value="es" data-i18n="lang.es">Español</option>
+    </select>
+  </div>
+  <div id="containerSemanas"></div>
+
+  <script type="module" src="js/plano-trabalhador.js"></script>
+</body>
+</html>
+<link rel="stylesheet" href="css/style.css">

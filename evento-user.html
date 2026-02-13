@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="eventUser.title">Meus Eventos</title>
+  <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/ui-refresh.css">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .evento-box {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+    .viagem-detalhes { display: none; margin-top: 10px; }
+    .btn-ver { margin-top: 10px; cursor: pointer; }
+    .accept {
+      background-color: #2ecc71;
+      color: white;
+      font-weight: bold;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .reject {
+      background-color: #e74c3c;
+      color: white;
+      font-weight: bold;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>👤 <span data-i18n="eventUser.title">Minhas Atribuições</span></h1>
+  <div style="margin: 8px 0 16px;">
+    <label for="langSelect" class="muted" data-i18n="ui.language">Idioma</label>
+    <select id="langSelect" style="width:100%; max-width:260px; margin-top:6px;">
+      <option value="en" data-i18n="lang.en">English</option>
+      <option value="pt" data-i18n="lang.pt">Português</option>
+      <option value="de" data-i18n="lang.de">Deutsch</option>
+      <option value="ro" data-i18n="lang.ro">Română</option>
+      <option value="fr" data-i18n="lang.fr">Français</option>
+      <option value="es" data-i18n="lang.es">Español</option>
+    </select>
+  </div>
+
+  <div class="evento-box">
+    <p><strong data-i18n="eventUser.event">Evento:</strong> </p>
+    <p><strong data-i18n="eventUser.date">Data:</strong> </p>
+    <p><strong data-i18n="eventUser.location">Local:</strong> </p>
+    <p><strong data-i18n="eventUser.eventId">ID do Evento:</strong> </p>
+  </div>
+
+  <div id="atribuicoesContainer"></div>
+
+  <script type="module" src="js/evento-user.js"></script>
+</body>
+</html>
