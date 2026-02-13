@@ -81,6 +81,39 @@
       padding:4px 8px; border-radius:6px; cursor:pointer; font-size:12px;
     }
     .atr-acao:hover { background:#1565c0; }
+
+    /* Mobile layout: avoid sidebar/content side-by-side overflow */
+    @media (max-width: 900px) {
+      html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      body {
+        display: block;
+        height: auto;
+      }
+      .sidebar {
+        width: 100%;
+        max-width: 100%;
+        min-height: auto;
+        padding: 14px;
+      }
+      .submenu {
+        padding-left: 12px;
+      }
+      .content {
+        width: 100%;
+        max-width: 100%;
+        padding: 14px;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .grid .full {
+        grid-column: span 1;
+      }
+    }
   </style>
 </head>
 <body>
